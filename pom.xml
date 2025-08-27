@@ -59,7 +59,6 @@
             <scope>provided</scope>
         </dependency>
         <!-- flink table -->
-        <!-- Local IDEA DEBUG Table API & SQL -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-planner-loader</artifactId>
@@ -74,6 +73,12 @@
         </dependency>
 
         <!--扩展工具-->
+        <!-- java.lang SDK扩展包 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${lang3.version}</version>
+        </dependency>
         <!-- 小辣椒 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -141,11 +146,6 @@
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-files</artifactId>
                 <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-kafka</artifactId>
-                <version>3.4.0-1.20</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
@@ -224,6 +224,7 @@
 
                                     <!--flink的hdfs镜像中的flink-shaded-hadoop-2-uber-2.8.3-10.0.jar已有-->
                                     <!--<exclude>com.squareup.okhttp:okhttp</exclude>-->
+
                                     <exclude>com.google.code.findbugs:jsr305</exclude>
                                 </excludes>
                             </artifactSet>
