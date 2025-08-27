@@ -1,5 +1,6 @@
-package com.sands.app.datastream;
+package com.sands.realtime.ods.app.datastream;
 
+import com.sands.realtime.common.utils.PropertiesUtil;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.cdc.connectors.base.options.StartupOptions;
 import org.apache.flink.cdc.connectors.sqlserver.source.SqlServerSourceBuilder;
@@ -9,7 +10,6 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.sands.utils.PropertiesUtil;
 
 /**
  * @author Jagger
