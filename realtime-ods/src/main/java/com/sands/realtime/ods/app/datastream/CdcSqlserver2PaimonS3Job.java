@@ -1,8 +1,8 @@
-package com.sands.app.datastream;
+package com.sands.realtime.ods.app.datastream;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.sands.utils.PropertiesUtil;
+import com.sands.realtime.common.utils.PropertiesUtil;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.cdc.connectors.base.options.StartupOptions;
 import org.apache.flink.cdc.connectors.sqlserver.source.SqlServerSourceBuilder;

@@ -1,6 +1,6 @@
-package com.sands.app.sql;
+package com.sands.realtime.ods.app.sql;
 
-import com.sands.utils.PropertiesUtil;
+import com.sands.realtime.common.utils.PropertiesUtil;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.slf4j.Logger;

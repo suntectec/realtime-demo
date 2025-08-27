@@ -1,4 +1,4 @@
-package com.sands.utils;
+package com.sands.realtime.common.utils;
 
 import java.io.InputStream;
 import java.util.Properties;
