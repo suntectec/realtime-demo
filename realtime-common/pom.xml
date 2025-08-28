@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.sands</groupId>
-        <artifactId>realtime-demo</artifactId>
+        <artifactId>realtime-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
@@ -16,7 +16,6 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -58,18 +57,15 @@
             <artifactId>flink-shaded-hadoop-3-uber</artifactId>
         </dependency>
 
-        <!-- flink 日志    -->
-        <!-- 日志门面-->
+        <!-- flink 日志 -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <!-- 桥接器-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
         </dependency>
-        <!-- log4j2的jar包  -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
