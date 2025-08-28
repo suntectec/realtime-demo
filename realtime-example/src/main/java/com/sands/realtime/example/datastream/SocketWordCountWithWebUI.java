@@ -30,21 +30,21 @@ public class SocketWordCountWithWebUI {
 
         // 2.读取数据
         // Source 接收一个socket文本流
-        DataStreamSource<String> dss = env.socketTextStream("localhost", 9000);
+        DataStreamSource<String> dss = env.socketTextStream("localhost", 9999);
 
         // 3.进行数据转换处理
         // Transformation(s) 对数据进行处理操作
-        SingleOutputStreamOperator<String> upperedDS = dss.map(String::toUpperCase);
-        SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOne = upperedDS
+        SingleOutputStreamOperator<String> upperedDS = dss.map(String::toUpperCase).name("toUpperCase");
+        SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOneDS = upperedDS
                 .flatMap((String line, Collector<Tuple2<String, Integer>> out) -> {
                     String[] words = line.split(" ");
                     for (String word : words) {
                         out.collect(Tuple2.of(word, 1));
                     }
-                }).returns(Types.TUPLE(Types.STRING, Types.INT));
+                }).returns(Types.TUPLE(Types.STRING, Types.INT)).name("wordAndOne");
 
         // 进行分组聚合(keyBy：将key相同的分到一个组中)
-        SingleOutputStreamOperator<Tuple2<String, Integer>> resultDataStream = wordAndOne.keyBy(v -> v.f0).sum(1);
+        SingleOutputStreamOperator<Tuple2<String, Integer>> resultDataStream = wordAndOneDS.keyBy(v -> v.f0).sum(1).name("wordCount");
 
         // 4.数据输出
         resultDataStream.print().setParallelism(1);
