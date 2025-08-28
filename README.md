@@ -1,3 +1,3 @@
 # realtime-parent
 
-Apache Flink Real-Time Project 
+Apache Flink Real-Time Project
