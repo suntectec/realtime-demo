@@ -1,3 +1,3 @@
-# realtime-demo
+# realtime-parent
 
-Apache Flink Real-Time Program Project Demo
+Apache Flink Real-Time Project
