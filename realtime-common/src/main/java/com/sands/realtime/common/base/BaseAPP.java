@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
@@ -83,6 +84,42 @@ public abstract class BaseAPP {
         // 2. 核心业务处理逻辑
         handle(env, stream, parameter);
 
+        env.execute();
+
+    }
+
+    /**
+     * Transformation(s) 数据转换，核心业务处理逻辑
+     * @param env
+     * @param dss
+     * @throws Exception
+     */
+    public abstract void testHandle(StreamExecutionEnvironment env,
+                                DataStreamSource<String> dss) throws Exception;
+
+    /**
+     * 本地 8081 WebUI 和 socket文本流 测试
+     * @param args
+     * @param socketTextStreamPort
+     * @throws Exception
+     */
+    public void testStart(String[] args,int socketTextStreamPort) throws Exception {
+        // 1. 准备环境
+        // 本地测试WebUI
+        Configuration conf = new Configuration();
+        conf.set(RestOptions.BIND_PORT, "8081");
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
+
+        // 2. 读取数据
+        // Source 接收一个socket文本流
+        DataStreamSource<String> dss = env.socketTextStream("localhost", socketTextStreamPort);
+
+        // 3. 进行数据转换处理
+        // 4. 数据输出
+        // 核心逻辑
+        testHandle(env, dss);
+
+        // 5. execute触发执行
         env.execute();
 
     }

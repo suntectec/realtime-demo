@@ -1,9 +1,9 @@
-package com.sands.realtime.example.datastream;
+package com.sands.realtime.ods.app;
 
+import com.sands.realtime.common.base.BaseAPP;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.RestOptions;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -20,20 +20,20 @@ import org.apache.flink.util.Collector;
  * @author Jagger
  * @since 2025/8/28 14:13
  */
-public class SocketWordCountWithWebUI {
+public class OdsBaseAPP extends BaseAPP {
+
     public static void main(String[] args) throws Exception {
+        new OdsBaseAPP().testStart(args, 9999);
+    }
 
-        // 1.准备环境
-        Configuration conf = new Configuration();
-        conf.set(RestOptions.BIND_PORT, "8081");
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
+    @Override
+    public void handle(StreamExecutionEnvironment env, DataStreamSource<String> streamSource, ParameterTool parameter) throws Exception {
 
-        // 2.读取数据
-        // Source 接收一个socket文本流
-        DataStreamSource<String> dss = env.socketTextStream("localhost", 9999);
+    }
 
-        // 3.进行数据转换处理
-        // Transformation(s) 对数据进行处理操作
+    @Override
+    public void testHandle(StreamExecutionEnvironment env, DataStreamSource<String> dss) throws Exception {
+
         SingleOutputStreamOperator<String> upperedDS = dss.map(String::toUpperCase).name("toUpperCase");
         SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOneDS = upperedDS
                 .flatMap((String line, Collector<Tuple2<String, Integer>> out) -> {
@@ -46,11 +46,8 @@ public class SocketWordCountWithWebUI {
         // 进行分组聚合(keyBy：将key相同的分到一个组中)
         SingleOutputStreamOperator<Tuple2<String, Integer>> resultDataStream = wordAndOneDS.keyBy(v -> v.f0).sum(1).name("wordCount");
 
-        // 4.数据输出
+        // Sink 数据输出
         resultDataStream.print().setParallelism(1);
-
-        // 5.execute触发执行
-        env.execute();
 
     }
 }
