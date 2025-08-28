@@ -1,13 +1,12 @@
 package com.sands.realtime.common.utils;
 
-import java.io.InputStream;
-import java.util.Properties;
+import org.apache.flink.api.java.utils.ParameterTool;
+
+import java.io.IOException;
 import java.util.ResourceBundle;
 
 public class PropertiesUtil {
     private final static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("application");
-
-    private final static String env = RESOURCE_BUNDLE.getString("profiles.active");
 
     private final static ResourceBundle ENV_RESOURCE_BUNDLE = ResourceBundle.getBundle("application-" + RESOURCE_BUNDLE.getString("profiles.active"));
 
@@ -15,16 +14,7 @@ public class PropertiesUtil {
         return ENV_RESOURCE_BUNDLE.getString(key);
     }
 
-    private static String getProperty1(String key) {
-        try (InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream("application-" + env + ".properties")) {
-            Properties prop = new Properties();
-            prop.load(input);
-
-            return prop.getProperty(key);
-
-        } catch (Exception e) {
-
-            return null;
-        }
+    public static ParameterTool getPropertiesParameters () throws IOException {
+        return ParameterTool.fromPropertiesFile("realtime-common/src/main/resources/application-" + RESOURCE_BUNDLE.getString("profiles.active") + ".properties");
     }
 }

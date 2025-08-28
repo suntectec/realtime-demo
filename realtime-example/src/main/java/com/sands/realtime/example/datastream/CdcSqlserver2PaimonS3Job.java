@@ -1,4 +1,4 @@
-package com.sands.realtime.ods.app.datastream;
+package com.sands.realtime.example.datastream;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;

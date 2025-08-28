@@ -1,4 +1,4 @@
-package com.sands.realtime.ods.app.sql;
+package com.sands.realtime.example.sql;
 
 import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

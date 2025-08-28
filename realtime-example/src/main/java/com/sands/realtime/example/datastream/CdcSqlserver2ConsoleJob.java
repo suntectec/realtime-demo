@@ -1,4 +1,4 @@
-package com.sands.realtime.ods.app.datastream;
+package com.sands.realtime.example.datastream;
 
 import com.sands.realtime.common.utils.PropertiesUtil;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;

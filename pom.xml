@@ -11,6 +11,8 @@
     <modules>
         <module>realtime-common</module>
         <module>realtime-ods</module>
+        <module>realtime-example</module>
+        <module>realtime-example</module>
     </modules>
 
     <properties>
@@ -29,7 +31,6 @@
         <slf4j.version>1.7.36</slf4j.version>
         <log4j.version>2.17.1</log4j.version>
     </properties>
-
     <!-- 公共的依赖，所有模块都依赖  -->
     <dependencies>
         <!-- flink -->
@@ -174,19 +175,19 @@
             </dependency>
 
             <!-- flink 日志 -->
-            <!-- 日志门面-->
+            <!-- 日志门面 -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-            <!-- 桥接器-->
+            <!-- 桥接器 -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
-            <!-- log4j2的jar包  -->
+            <!-- log4j2的jar包 -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
