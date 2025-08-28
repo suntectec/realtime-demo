@@ -15,7 +15,7 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-import static org.apache.flink.streaming.api.environment.CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION;
+import static org.apache.flink.configuration.ExternalizedCheckpointRetention.RETAIN_ON_CANCELLATION;
 
 /**
  * BaseApp的设计初衷：
@@ -26,10 +26,12 @@ import static org.apache.flink.streaming.api.environment.CheckpointConfig.Extern
  */
 @Slf4j
 public abstract class BaseAPP {
+
     public abstract void handle(StreamExecutionEnvironment env,
                                 DataStreamSource<String> streamSource, ParameterTool parameter) throws Exception;
 
     public void start(int port, String ckAndGroupId, String topic,String[] args, OffsetsInitializer offsetsInitializer) throws Exception {
+
         // 1. 环境准备
         // 1.1 设置操作 Hadoop 的用户名为 Hadoop 超级用户 flink
         System.setProperty("HADOOP_USER_NAME", "flink");
@@ -70,7 +72,7 @@ public abstract class BaseAPP {
         // 1.4.7 checkpoint  的超时时间
         env.getCheckpointConfig().setCheckpointTimeout(300000);
         // 1.4.8 job 取消时 checkpoint 保留策略
-        env.getCheckpointConfig().setExternalizedCheckpointCleanup(RETAIN_ON_CANCELLATION);
+        env.getCheckpointConfig().setExternalizedCheckpointRetention(RETAIN_ON_CANCELLATION);
 
         // 1.5 从 Kafka 目标主题读取数据，封装为流
         String kafkaServer = parameter.get("kafka.broker");
@@ -82,5 +84,6 @@ public abstract class BaseAPP {
         handle(env, stream, parameter);
 
         env.execute();
+
     }
 }
