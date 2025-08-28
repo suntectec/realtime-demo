@@ -28,8 +28,16 @@ import static org.apache.flink.configuration.ExternalizedCheckpointRetention.RET
 @Slf4j
 public abstract class BaseAPP {
 
+    /**
+     * Transformation(s) 数据转换，核心业务处理逻辑
+     *
+     * @param env
+     * @param dss
+     * @param parameter
+     * @throws Exception
+     */
     public abstract void handle(StreamExecutionEnvironment env,
-                                DataStreamSource<String> streamSource, ParameterTool parameter) throws Exception;
+                                DataStreamSource<String> dss, ParameterTool parameter) throws Exception;
 
     public void start(int port, String ckAndGroupId, String topic,String[] args, OffsetsInitializer offsetsInitializer) throws Exception {
 
@@ -39,8 +47,13 @@ public abstract class BaseAPP {
 
         // 1.2 获取流处理环境，并指定本地测试时启动 WebUI 所绑定的端口
         Configuration conf = new Configuration();
-        conf.setInteger("rest.port", port);
+        conf.set(RestOptions.BIND_PORT, "8081");
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+
+        // 1.2.1 本地运行环境添加 8081 WebUI
+        if (env instanceof LocalStreamEnvironment) {
+            env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
+        }
 
         // 1.3 将ParameterTool的参数设置成全局的参数
         // ParameterTool parameter = ParameterTool.fromArgs(args);
@@ -79,23 +92,16 @@ public abstract class BaseAPP {
         String kafkaServer = parameter.get("kafka.broker");
         KafkaSource<String> source = FlinkSourceUtil.getKafkaSource(kafkaServer, ckAndGroupId, topic, offsetsInitializer);
 
+        // 2. 读取数据
         DataStreamSource<String> stream = env.fromSource(source, WatermarkStrategy.noWatermarks(), "kafka_source");
 
-        // 2. 核心业务处理逻辑
+        // 3. 核心业务处理逻辑  4. 数据输出
         handle(env, stream, parameter);
 
+        // 5. execute触发执行
         env.execute();
 
     }
-
-    /**
-     * Transformation(s) 数据转换，核心业务处理逻辑
-     * @param env
-     * @param dss
-     * @throws Exception
-     */
-    public abstract void testHandle(StreamExecutionEnvironment env,
-                                DataStreamSource<String> dss) throws Exception;
 
     /**
      * 本地 8081 WebUI 和 socket文本流 测试
@@ -103,7 +109,7 @@ public abstract class BaseAPP {
      * @param socketTextStreamPort
      * @throws Exception
      */
-    public void testStart(String[] args,int socketTextStreamPort) throws Exception {
+    public void localStart(String[] args, int socketTextStreamPort) throws Exception {
         // 1. 准备环境
         // 本地测试WebUI
         Configuration conf = new Configuration();
@@ -114,10 +120,10 @@ public abstract class BaseAPP {
         // Source 接收一个socket文本流
         DataStreamSource<String> dss = env.socketTextStream("localhost", socketTextStreamPort);
 
-        // 3. 进行数据转换处理
-        // 4. 数据输出
-        // 核心逻辑
-        testHandle(env, dss);
+        ParameterTool parameter = ParametersUtil.setGlobalJobParameters(env, args);
+
+        // 3. 核心业务处理逻辑  4. 数据输出
+        handle(env, dss, parameter);
 
         // 5. execute触发执行
         env.execute();
