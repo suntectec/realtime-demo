@@ -9,10 +9,9 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>realtime-example</module>
         <module>realtime-common</module>
         <module>realtime-ods</module>
-        <module>realtime-example</module>
-        <module>realtime-example</module>
     </modules>
 
     <properties>
