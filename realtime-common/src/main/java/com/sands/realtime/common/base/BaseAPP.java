@@ -5,13 +5,14 @@ import com.sands.realtime.common.utils.ParametersUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.configuration.CheckpointingOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
+import org.apache.flink.configuration.StateBackendOptions;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
-import org.apache.flink.runtime.state.hashmap.HashMapStateBackend;
-import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.core.execution.CheckpointingMode;
+import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -60,33 +61,63 @@ public abstract class BaseAPP {
         // env.getConfig().setGlobalJobParameters(parameter);
         // 1.3.1 升级 parameter 采用优先级：args, properties 的方式获取
         ParameterTool parameter = ParametersUtil.setGlobalJobParameters(env, args);
-        // 1.4 状态后端及检查点相关配置
-        // 1.4.1 设置状态后端
-        env.setStateBackend(new HashMapStateBackend());
-        // 1.4.2 开启 checkpoint
-        env.enableCheckpointing(300000);
-        // 1.4.3 设置 checkpoint 模式: 精准一次
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        // 1.4.4 checkpoint 存储
+        // 1.4 检查点相关配置
+        // 1.4.1 开启 checkpoint
+        env.enableCheckpointing(1000);
+        // 1.4.2 checkpoint 模式: 精准一次
+        env.getCheckpointConfig().setCheckpointingConsistencyMode(CheckpointingMode.EXACTLY_ONCE);
+        // 1.4.3 checkpoint 之间的最小间隔
+        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(500);
+        // 1.4.4 checkpoint 的超时时间
+        env.getCheckpointConfig().setCheckpointTimeout(60000);
+        // 1.4.5 checkpoint 失败尝试次数
+        env.getCheckpointConfig().setTolerableCheckpointFailureNumber(2);
+        // 1.4.6 checkpoint 并发数
+        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
+        // 1.4.7 job 取消时 checkpoint 保留策略
+        env.getCheckpointConfig().setExternalizedCheckpointRetention(RETAIN_ON_CANCELLATION);
+        // 1.4.8 允许非对齐 checkpoint
+        env.getCheckpointConfig().enableUnalignedCheckpoints();
+
+        // 1.4.9 checkpoint 存储
         if (env instanceof LocalStreamEnvironment) {  // 在本地运行的逻辑
-            HashMapStateBackend hashMapStateBackend = new HashMapStateBackend();
-            env.setStateBackend(hashMapStateBackend); // 使用HashMapStateBackend  作为状态后端
-            env.getCheckpointConfig().setCheckpointStorage("file:///D:\\tmp\\flink-checkpoints");
+            // 设置状态后端
+            Configuration config = new Configuration();
+            // 使用 HashMapStateBackend 作为状态后端
+            config.set(StateBackendOptions.STATE_BACKEND, "hashmap");
+            config.set(CheckpointingOptions.CHECKPOINT_STORAGE, "filesystem");
+            // Use File as checkpoint storage
+            config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "file:///D:\\tmp\\flink-checkpoints");
+            // 增量快照
+            config.set(CheckpointingOptions.INCREMENTAL_CHECKPOINTS, true);
+
+            FileSystem.initialize(config, null);
+
+            env.configure(config);
+
             log.info("flink提交作业模式：--本地");
         } else { // 在集群运行的逻辑
-            EmbeddedRocksDBStateBackend embeddedRocksDBStateBackend = new EmbeddedRocksDBStateBackend(true);
-            env.setStateBackend(embeddedRocksDBStateBackend);  // 设置 EmbeddedRocksDBStateBackend 作为状态后端
-            env.getCheckpointConfig().setCheckpointStorage("hdfs:///flink/flink-checkpoints");
+            // 设置状态后端
+            Configuration config = new Configuration();
+            // 使用 EmbeddedRocksDBStateBackend 作为状态后端
+            config.set(StateBackendOptions.STATE_BACKEND, "rocksdb");
+            config.set(CheckpointingOptions.CHECKPOINT_STORAGE, "filesystem");
+            // Use S3 as checkpoint storage
+            config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "s3://lakehouse/flink/flink-checkpoints");
+            config.set(CheckpointingOptions.SAVEPOINT_DIRECTORY, "s3://lakehouse/flink/flink-savepoints");
+            config.setString("s3.access.key", "minioadmin");
+            config.setString("s3.secret.key", "minioadmin");
+            config.setString("s3.endpoint", "http://192.168.138.15:9000");
+            config.setString("s3.path.style.access", "true");
+            // 增量快照
+            config.set(CheckpointingOptions.INCREMENTAL_CHECKPOINTS, true);
+
+            FileSystem.initialize(config, null);
+
+            env.configure(config);
+
             log.info("flink提交作业模式：--集群");
         }
-        // 1.4.5 checkpoint 并发数
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
-        // 1.4.6 checkpoint 之间的最小间隔
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(5000);
-        // 1.4.7 checkpoint  的超时时间
-        env.getCheckpointConfig().setCheckpointTimeout(300000);
-        // 1.4.8 job 取消时 checkpoint 保留策略
-        env.getCheckpointConfig().setExternalizedCheckpointRetention(RETAIN_ON_CANCELLATION);
 
         // 1.5 从 Kafka 目标主题读取数据，封装为流
         String kafkaServer = parameter.get("kafka.broker");

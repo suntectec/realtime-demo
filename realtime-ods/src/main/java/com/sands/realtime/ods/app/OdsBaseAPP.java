@@ -1,8 +1,6 @@
 package com.sands.realtime.ods.app;
 
 import com.sands.realtime.common.base.BaseAPP;
-import com.sands.realtime.common.utils.ParametersUtil;
-import com.sands.realtime.common.utils.PropertiesUtil;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -16,7 +14,6 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
-import org.apache.paimon.flink.kafka.KafkaSinkFunction;
 
 /**
  * 验证测试
@@ -26,7 +23,7 @@ import org.apache.paimon.flink.kafka.KafkaSinkFunction;
  * 第二个窗口执行：
  * nc localhost 9000
  *
- * bin/flink run -c com.sands.realtime.ods.app.OdsBaseAPP ./lib/jobs/realtime-ods-1.0-SNAPSHOT.jar
+ * bin/flink run -c com.sands.realtime.ods.app.OdsBaseAPP ./lib/jobs/realtime-ods/target/realtime-ods-1.0-SNAPSHOT.jar
  *
  * @author Jagger
  * @since 2025/8/28 14:13
@@ -39,6 +36,8 @@ public class OdsBaseAPP extends BaseAPP {
 
     @Override
     public void handle(StreamExecutionEnvironment env, DataStreamSource<String> dss, ParameterTool parameter) throws Exception {
+
+        env.setParallelism(1);
 
         SingleOutputStreamOperator<String> upperedDS = dss.map(String::toUpperCase).name("toUpperCase");
         SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOneDS = upperedDS
@@ -54,7 +53,7 @@ public class OdsBaseAPP extends BaseAPP {
 
         // 数据输出
         if (env instanceof LocalStreamEnvironment) {
-            resultDS.print().setParallelism(1);
+            resultDS.print();
         } else {
             KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
                     .setBootstrapServers(parameter.get("kafka.broker"))
@@ -71,6 +70,8 @@ public class OdsBaseAPP extends BaseAPP {
                     .map(Tuple2::toString)
                     .sinkTo(kafkaSink);
         }
+
+        env.disableOperatorChaining();
 
     }
 
