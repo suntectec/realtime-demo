@@ -1,6 +1,7 @@
 package com.sands.realtime.ods.app;
 
 import com.sands.realtime.common.base.BaseAPP;
+import com.sands.realtime.common.constant.TopicConstant;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -59,7 +60,7 @@ public class OdsBaseAPP extends BaseAPP {
                     .setBootstrapServers(parameter.get("kafka.broker"))
                     .setRecordSerializer(
                             KafkaRecordSerializationSchema.<String>builder()
-                                    .setTopic("ods_socket_topic")
+                                    .setTopic(TopicConstant.TOPIC_ODS_SOCKET)
                                     .setValueSerializationSchema(new SimpleStringSchema())
                                     .build()
                     )

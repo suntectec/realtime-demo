@@ -32,10 +32,10 @@ public abstract class BaseAPP {
     /**
      * Transformation(s) 数据转换，核心业务处理逻辑
      *
-     * @param env
-     * @param dss
-     * @param parameter
-     * @throws Exception
+     * @param env 流执行环境
+     * @param dss 数据源流
+     * @param parameter 任务全局参数
+     * @throws Exception 异常
      */
     public abstract void handle(StreamExecutionEnvironment env,
                                 DataStreamSource<String> dss, ParameterTool parameter) throws Exception;
@@ -136,9 +136,9 @@ public abstract class BaseAPP {
 
     /**
      * 本地 8081 WebUI 和 socket文本流 测试
-     * @param args
-     * @param socketTextStreamPort
-     * @throws Exception
+     * @param args 命令行参数
+     * @param socketTextStreamPort socket文本流端口号
+     * @throws Exception 异常
      */
     public void localStart(String[] args, int socketTextStreamPort) throws Exception {
         // 1. 准备环境
