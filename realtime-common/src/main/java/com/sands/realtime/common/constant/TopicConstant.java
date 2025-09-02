@@ -6,4 +6,5 @@ package com.sands.realtime.common.constant;
  */
 public class TopicConstant {
     public static final String TOPIC_ODS_ORDERS = "ods_orders_topic";
+    public static final String TOPIC_ODS_SOCKET = "ods_socket_topic";
 }

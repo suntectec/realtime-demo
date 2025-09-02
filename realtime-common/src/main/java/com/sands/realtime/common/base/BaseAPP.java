@@ -135,7 +135,14 @@ public abstract class BaseAPP {
     }
 
     /**
-     * 本地 8081 WebUI 和 socket文本流 测试
+     * 本地 8081 WebUI 和 socket文本流 测试:
+     *  验证测试
+     *  打开两个cmd窗口
+     *  第一个窗口执行：
+     *  nc -lp 9000 # -l 监听模式 -p 开启监听端口
+     *  第二个窗口执行：
+     *  nc localhost 9000
+     *
      * @param args 命令行参数
      * @param socketTextStreamPort socket文本流端口号
      * @throws Exception 异常
