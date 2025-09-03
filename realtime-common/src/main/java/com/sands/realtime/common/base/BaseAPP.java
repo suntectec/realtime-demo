@@ -30,15 +30,12 @@ import static org.apache.flink.configuration.ExternalizedCheckpointRetention.RET
 public abstract class BaseAPP {
 
     /**
-     * Transformation(s) 数据转换，核心业务处理逻辑
+     * 核心处理：Source->Transformation(s)数据转换->Sink
      *
      * @param env 流执行环境
-     * @param dss 数据源流
-     * @param parameter 任务全局参数
-     * @throws Exception 异常
+     * @param parameters 任务全局参数
      */
-    public abstract void handle(StreamExecutionEnvironment env,
-                                DataStreamSource<String> dss, ParameterTool parameter) throws Exception;
+    public abstract void handle(StreamExecutionEnvironment env, ParameterTool parameters);
 
     public void start(int port, String ckAndGroupId, String topic,String[] args, OffsetsInitializer offsetsInitializer) throws Exception {
 
@@ -48,7 +45,7 @@ public abstract class BaseAPP {
 
         // 1.2 获取流处理环境，并指定本地测试时启动 WebUI 所绑定的端口
         Configuration conf = new Configuration();
-        conf.set(RestOptions.BIND_PORT, "8081");
+        conf.set(RestOptions.BIND_PORT, String.valueOf(port));
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
 
         // 1.2.1 本地运行环境添加 8081 WebUI
@@ -60,14 +57,14 @@ public abstract class BaseAPP {
         // ParameterTool parameter = ParameterTool.fromArgs(args);
         // env.getConfig().setGlobalJobParameters(parameter);
         // 1.3.1 升级 parameter 采用优先级：args, properties 的方式获取
-        ParameterTool parameter = ParametersUtil.setGlobalJobParameters(env, args);
+        ParameterTool parameters = ParametersUtil.setGlobalJobParameters(env, args);
         // 1.4 检查点相关配置
         // 1.4.1 开启 checkpoint
-        env.enableCheckpointing(1000);
+        env.enableCheckpointing(10000);
         // 1.4.2 checkpoint 模式: 精准一次
         env.getCheckpointConfig().setCheckpointingConsistencyMode(CheckpointingMode.EXACTLY_ONCE);
         // 1.4.3 checkpoint 之间的最小间隔
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(500);
+        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(5000);
         // 1.4.4 checkpoint 的超时时间
         env.getCheckpointConfig().setCheckpointTimeout(60000);
         // 1.4.5 checkpoint 失败尝试次数
@@ -119,49 +116,8 @@ public abstract class BaseAPP {
             log.info("flink提交作业模式：--集群");
         }
 
-        // 1.5 从 Kafka 目标主题读取数据，封装为流
-        String kafkaServer = parameter.get("kafka.broker");
-        KafkaSource<String> source = FlinkSourceUtil.getKafkaSource(kafkaServer, ckAndGroupId, topic, offsetsInitializer);
-
-        // 2. 读取数据
-        DataStreamSource<String> stream = env.fromSource(source, WatermarkStrategy.noWatermarks(), "kafka_source");
-
-        // 3. 核心业务处理逻辑  4. 数据输出
-        handle(env, stream, parameter);
-
-        // 5. execute触发执行
-        env.execute();
-
-    }
-
-    /**
-     * 本地 8081 WebUI 和 socket文本流 测试:
-     *  验证测试
-     *  打开两个cmd窗口
-     *  第一个窗口执行：
-     *  nc -lp 9000 # -l 监听模式 -p 开启监听端口
-     *  第二个窗口执行：
-     *  nc localhost 9000
-     *
-     * @param args 命令行参数
-     * @param socketTextStreamPort socket文本流端口号
-     * @throws Exception 异常
-     */
-    public void localStart(String[] args, int socketTextStreamPort) throws Exception {
-        // 1. 准备环境
-        // 本地测试WebUI
-        Configuration conf = new Configuration();
-        conf.set(RestOptions.BIND_PORT, "8081");
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
-
-        // 2. 读取数据
-        // Source 接收一个socket文本流
-        DataStreamSource<String> dss = env.socketTextStream("localhost", socketTextStreamPort);
-
-        ParameterTool parameter = ParametersUtil.setGlobalJobParameters(env, args);
-
-        // 3. 核心业务处理逻辑  4. 数据输出
-        handle(env, dss, parameter);
+        // 2. 读取数据 3. 核心业务处理逻辑  4. 数据输出
+        handle(env, parameters);
 
         // 5. execute触发执行
         env.execute();
