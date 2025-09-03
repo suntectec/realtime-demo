@@ -17,16 +17,16 @@ public class SqlserverUtil {
 
     // SqlServer CDC Source
     public static SqlServerIncrementalSource<String> getSqlServerCdcSource(
-            ParameterTool parameter,
+            ParameterTool parameters,
             String database, String table, StartupOptions startupOptions) {
         SqlServerIncrementalSource<String> sqlServerSource =
                 new SqlServerSourceBuilder<String>()
-                        .hostname(parameter.get("sqlserver.host"))
-                        .port(parameter.getInt("sqlserver.port"))
+                        .hostname(parameters.get("sqlserver.host"))
+                        .port(parameters.getInt("sqlserver.port"))
                         .databaseList(database)
                         .tableList(table)
-                        .username(parameter.get("sqlserver.username"))
-                        .password(parameter.get("sqlserver.password"))
+                        .username(parameters.get("sqlserver.username"))
+                        .password(parameters.get("sqlserver.password"))
                         .deserializer(new JsonDebeziumDeserializationSchema())
                         .startupOptions(startupOptions)
                         .build();
@@ -35,8 +35,8 @@ public class SqlserverUtil {
     }
 
     public static DataStreamSource<String> createSqlServerCdcDataStream(StreamExecutionEnvironment env,
-                                                                        ParameterTool parameter, String database, String table, StartupOptions startupOptions) throws Exception {
-        SqlServerIncrementalSource<String> sqlServerSource = getSqlServerCdcSource(parameter, database, table, startupOptions);
+                                                                        ParameterTool parameters, String database, String table, StartupOptions startupOptions) throws Exception {
+        SqlServerIncrementalSource<String> sqlServerSource = getSqlServerCdcSource(parameters, database, table, startupOptions);
         return env.fromSource(sqlServerSource, WatermarkStrategy.noWatermarks(), "sqlserver-source");
     }
 

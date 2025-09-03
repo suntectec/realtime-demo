@@ -57,11 +57,9 @@ public class WordCountAPP extends BaseAPP {
         if (env instanceof LocalStreamEnvironment) {
             resultDS.print();
         } else {
-            KafkaSink<String> kafkaSink = FlinkSinkUtil.getKafkaSink(parameter, TopicConstant.TOPIC_ODS_SOCKET);
-
             resultDS
                     .map(Tuple2::toString)
-                    .sinkTo(kafkaSink);
+                    .sinkTo(FlinkSinkUtil.getKafkaSink(parameter, TopicConstant.TOPIC_ODS_SOCKET)).name("sink_ods_socket_topic");
         }
 
         env.disableOperatorChaining();
