@@ -12,10 +12,10 @@ import org.apache.flink.connector.kafka.sink.KafkaSink;
  */
 public class FlinkSinkUtil {
 
-    public static KafkaSink<String> getKafkaSink(ParameterTool parameter,
+    public static KafkaSink<String> getKafkaSink(ParameterTool parameters,
                                                  String topicName){
         return KafkaSink.<String>builder()
-                .setBootstrapServers(parameter.get("kafka.broker"))
+                .setBootstrapServers(parameters.get("kafka.broker"))
                 .setRecordSerializer(
                         KafkaRecordSerializationSchema.<String>builder()
                                 .setTopic(topicName)

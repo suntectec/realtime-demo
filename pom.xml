@@ -233,6 +233,8 @@
                                     <!--<exclude>com.squareup.okhttp:okhttp</exclude>-->
 
                                     <exclude>com.google.code.findbugs:jsr305</exclude>
+                                    <exclude>org.apache.flink:flink-shaded-hadoop-3-uber</exclude>
+                                    <exclude>org.apache.flink:flink-s3-fs-hadoop</exclude>
                                 </excludes>
                             </artifactSet>
                             <filters>

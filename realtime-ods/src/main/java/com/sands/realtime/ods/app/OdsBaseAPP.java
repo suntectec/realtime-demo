@@ -20,10 +20,13 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 /**
  * 将 flink sqlserver cdc debezium 数据转化成表数据写入 kafka
  *
- * bin/flink run -c com.sands.realtime.ods.app.OdsBaseAPP ./lib/jobs/realtime-ods/target/realtime-ods-1.0-SNAPSHOT.jar
- *
  * @author Jagger
  * @since 2025/9/2 9:22
+ * 程序启动：
+$FLINK_HOME/bin/flink run \
+-m 192.168.138.15:8081 \
+-c com.sands.realtime.ods.app.OdsBaseAPP \
+$FLINK_HOME/usrlib/realtime-ods-1.0-SNAPSHOT.jar
  */
 public class OdsBaseAPP extends BaseAPP {
 
@@ -32,9 +35,9 @@ public class OdsBaseAPP extends BaseAPP {
     }
 
     @Override
-    public void handle(StreamExecutionEnvironment env, DataStreamSource<String> dss, ParameterTool parameter) throws Exception {
+    public void handle(StreamExecutionEnvironment env, ParameterTool parameters) {
 
-        // 使用自定义 SqlServer Debezium Schema 和 时间日期 Converter
+        // Environment
         // 设置全局并行度
         env.setParallelism(1);
         // 设置时间语义为ProcessingTime
@@ -50,16 +53,23 @@ public class OdsBaseAPP extends BaseAPP {
         // Flink处理程序被cancel后，会保留Checkpoint数据
         env.getCheckpointConfig().getExternalizedCheckpointRetention();
 
-        SingleOutputStreamOperator<String> result = env.fromSource(SqlserverOdsSource.getSqlServerOdsSource(parameter, SqlserverConstant.SQLSERVER_SOURCE_DB, SqlserverConstant.SQLSERVER_SOURCE_TB), WatermarkStrategy.noWatermarks(), "SqlServer Source")
-                .name("sqlserver-ods-orders")
+        // Source
+        // 使用自定义 SqlServer Line Debezium Schema 和 时间日期 Converter
+        DataStreamSource<String> ds = env.fromSource(SqlserverOdsSource.getSqlServerOdsSource(parameters, SqlserverConstant.SQLSERVER_SOURCE_DB, SqlserverConstant.SQLSERVER_SOURCE_TB), WatermarkStrategy.noWatermarks(), "SqlServer Source");
+
+        // Transformation
+        SingleOutputStreamOperator<String> result = ds
                 .map(v -> JSON.parseObject(v, SqlserverOrdersInputBean.class))
                 .process(new OdsOrdersProcessFunction());
 
+        // Sink
         if (env instanceof LocalStreamEnvironment) {  // 在本地测试运行的逻辑
             result.print(">result>");
         } else { // 写入kafka
-            result.sinkTo(FlinkSinkUtil.getKafkaSink(parameter, TopicConstant.TOPIC_ODS_ORDERS)).name("sink_orders_topic");
+            result.sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.TOPIC_ODS_ORDERS)).name("sink_ods_orders_topic");
         }
+
+        env.disableOperatorChaining();
 
     }
 }

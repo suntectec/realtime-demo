@@ -21,3 +21,62 @@
 1. [x] **`realtime-dws`** (Data Warehouse Summary): A module for the Data Warehouse Summary layer processing. It provides high-level summaries and key performance indicators (KPIs) derived from the DWM layer, optimized for fast query performance.
 1. [x] **`realtime-dim`** (Dimension): A module for managing dimension data. It handles the storage, retrieval, and updating of dimension tables used across the data warehouse layers.
 1. [x] **`realtime-ads`** (Application Data Service): A module for the Application Data Store layer processing. It serves as the interface for end-user applications, providing curated datasets and APIs for business intelligence and analytics.
+
+### For entering workdir-path faster, using setting alias in bashrc:
+
+Simplify `cd`
+```
+echo "alias ppf='cd /opt/poc-allin1/native/flink/flink-1.20.1'" >> ~/.bashrc
+
+source ~/.bashrc
+```
+or Temporary
+```
+#FLINK_HOME
+export FLINK_HOME=/opt/poc-allin1/native/flink/flink-1.20.1
+export PATH=$PATH:$FLINK_HOME/bin
+```
+or Permanent for Single User
+```
+cat << 'EOF' >> ~/.profile
+export FLINK_HOME=/opt/poc-allin1/native/flink/flink-1.20.1
+export PATH=$FLINK_HOME/bin:$PATH
+EOF
+
+source ~/.profile
+```
+```
+echo "export FLINK_HOME=/opt/poc-allin1/native/flink/flink-1.20.1" >> ~/.profile
+echo "export PATH=\$FLINK_HOME/bin:\$PATH" >> ~/.profile
+source ~/.profile
+```
+Test Export Variable
+```
+env
+```
+
+### Submitting Flink Application Job
+
+**Way.1 Using Flink WebUI**
+
+Upload Jar and Specify Destination Main Class
+
+**Way.2 Using Command Line**
+
+SCP Uploading Jar and Use `flink run -c`
+
+1. realtime-common -> $FLINK_HOME/lib
+```shell
+scp realtime-common/target/realtime-common-1.0-SNAPSHOT.jar Data.Eng@192.168.138.15:/opt/poc-allin1/native/flink/flink-1.20.1/lib/
+```
+2. realtime-ods -> $FLINK_HOME/usrlib
+```shell
+scp realtime-ods/target/realtime-ods-1.0-SNAPSHOT.jar Data.Eng@192.168.138.15:/opt/poc-allin1/native/flink/flink-1.20.1/usrlib/
+```
+
+```
+$FLINK_HOME/bin/flink run \
+-m 192.168.138.15:8081 \
+-c com.sands.realtime.ods.app.OdsBaseAPP \
+$FLINK_HOME/usrlib/realtime-ods-1.0-SNAPSHOT.jar
+```
