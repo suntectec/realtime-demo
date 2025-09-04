@@ -65,18 +65,14 @@ Upload Jar and Specify Destination Main Class
 
 SCP Uploading Jar and Use `flink run -c`
 
-1. realtime-common -> $FLINK_HOME/lib
+realtime-common -> $FLINK_HOME/lib
 ```shell
-scp realtime-common/target/realtime-common-1.0-SNAPSHOT.jar Data.Eng@192.168.138.15:/opt/poc-allin1/native/flink/flink-1.20.1/lib/
-```
-2. realtime-ods -> $FLINK_HOME/usrlib
-```shell
-scp realtime-ods/target/realtime-ods-1.0-SNAPSHOT.jar Data.Eng@192.168.138.15:/opt/poc-allin1/native/flink/flink-1.20.1/usrlib/
+scp realtime-common/target/realtime-common-1.0-SNAPSHOT.jar Data.Eng@192.168.138.15:/opt/poc-allin1/native/flink/flink-1.20.1/lib/common/
 ```
 
 ```
 $FLINK_HOME/bin/flink run \
--m 192.168.138.15:8081 \
+-m localhost:8081 \
 -c com.sands.realtime.ods.app.OdsBaseAPP \
-$FLINK_HOME/usrlib/realtime-ods-1.0-SNAPSHOT.jar
+$FLINK_HOME/usrlib/realtime-ods/target/realtime-ods-1.0-SNAPSHOT.jar
 ```

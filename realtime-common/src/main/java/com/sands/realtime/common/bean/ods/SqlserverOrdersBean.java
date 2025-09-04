@@ -1,5 +1,6 @@
 package com.sands.realtime.common.bean.ods;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class SqlserverOrdersInputBean {
+public class SqlserverOrdersBean {
 
     @JSONField(name = "ingestionDateTime")
     private String ingestionDateTime;
@@ -34,7 +35,7 @@ public class SqlserverOrdersInputBean {
     @JSONField(name = "tableName")
     private String tableName;
 
-    @JSONField(name = "after")
-    private SqlserverOrdersInfo sqlserverOrdersInfo;
+    @JSONField(alternateNames = {"after"}, name = "data")
+    private SqlserverOrdersInfo after;
 
 }

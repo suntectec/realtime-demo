@@ -16,8 +16,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 public class SqlserverUtil {
 
     // SqlServer CDC Source
-    public static SqlServerIncrementalSource<String> getSqlServerCdcSource(
-            ParameterTool parameters,
+    public static SqlServerIncrementalSource<String> getSqlServerCdcSource(ParameterTool parameters,
             String database, String table, StartupOptions startupOptions) {
         SqlServerIncrementalSource<String> sqlServerSource =
                 new SqlServerSourceBuilder<String>()
@@ -37,7 +36,7 @@ public class SqlserverUtil {
     public static DataStreamSource<String> createSqlServerCdcDataStream(StreamExecutionEnvironment env,
                                                                         ParameterTool parameters, String database, String table, StartupOptions startupOptions) throws Exception {
         SqlServerIncrementalSource<String> sqlServerSource = getSqlServerCdcSource(parameters, database, table, startupOptions);
-        return env.fromSource(sqlServerSource, WatermarkStrategy.noWatermarks(), "sqlserver-source");
+        return env.fromSource(sqlServerSource, WatermarkStrategy.noWatermarks(), "Sqlserver Source");
     }
 
 }
