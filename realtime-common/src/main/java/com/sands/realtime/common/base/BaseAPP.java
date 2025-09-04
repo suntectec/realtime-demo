@@ -37,7 +37,7 @@ public abstract class BaseAPP {
      */
     public abstract void handle(StreamExecutionEnvironment env, ParameterTool parameters);
 
-    public void start(int port, String ckAndGroupId, String topic,String[] args, OffsetsInitializer offsetsInitializer) throws Exception {
+    public void start(int port, String[] args) throws Exception {
 
         // 1. 环境准备
         // 1.1 设置操作 Hadoop 的用户名为 Hadoop 超级用户 flink

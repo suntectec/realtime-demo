@@ -16,10 +16,11 @@ import java.time.format.DateTimeFormatter;
  * @author Jagger
  * @since 2025/8/26 14:40
  */
-public class OdsOrdersProcessFunction extends ProcessFunction<SqlserverOrdersInputBean, String> {
+public class OrdersProcessFunction extends ProcessFunction<SqlserverOrdersInputBean, String> {
 
     @Override
     public void processElement(SqlserverOrdersInputBean sqlserverOrdersInputBean, ProcessFunction<SqlserverOrdersInputBean, String>.Context context, Collector<String> collector) throws Exception {
+
         SqlserverOrdersInfo sqlserverOrdersInfo = sqlserverOrdersInputBean.getSqlserverOrdersInfo();
         sqlserverOrdersInfo.set_rowKind(sqlserverOrdersInputBean.getOp());
         // Long -> DateTime
@@ -27,6 +28,7 @@ public class OdsOrdersProcessFunction extends ProcessFunction<SqlserverOrdersInp
         String procTime = dateTimeFormatter.format(Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneId.systemDefault()));
         sqlserverOrdersInfo.set_procTime(procTime);
         collector.collect(JSON.toJSONString(sqlserverOrdersInfo));
+
     }
 
 }

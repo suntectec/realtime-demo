@@ -67,7 +67,7 @@ SCP Uploading Jar and Use `flink run -c`
 
 1. realtime-common -> $FLINK_HOME/lib
 ```shell
-scp realtime-common/target/realtime-common-1.0-SNAPSHOT.jar Data.Eng@192.168.138.15:/opt/poc-allin1/native/flink/flink-1.20.1/lib/
+scp realtime-common/target/realtime-common-1.0-SNAPSHOT.jar Data.Eng@192.168.138.15:/opt/poc-allin1/native/flink/flink-1.20.1/lib/common/
 ```
 2. realtime-ods -> $FLINK_HOME/usrlib
 ```shell

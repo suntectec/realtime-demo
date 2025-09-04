@@ -6,7 +6,7 @@ import com.sands.realtime.common.bean.ods.SqlserverOrdersInputBean;
 import com.sands.realtime.common.constant.SqlserverConstant;
 import com.sands.realtime.common.constant.TopicConstant;
 import com.sands.realtime.common.utils.FlinkSinkUtil;
-import com.sands.realtime.ods.function.OdsOrdersProcessFunction;
+import com.sands.realtime.ods.function.OrdersProcessFunction;
 import com.sands.realtime.ods.source.SqlserverOdsSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -24,14 +24,14 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
  * @since 2025/9/2 9:22
  * 程序启动：
 $FLINK_HOME/bin/flink run \
--m 192.168.138.15:8081 \
+-m localhost:8081 \
 -c com.sands.realtime.ods.app.OdsBaseAPP \
-$FLINK_HOME/usrlib/realtime-ods-1.0-SNAPSHOT.jar
+$FLINK_HOME/usrlib/realtime-ods/target/realtime-ods-1.0-SNAPSHOT.jar
  */
 public class OdsBaseAPP extends BaseAPP {
 
     public static void main(String[] args) throws Exception {
-        new OdsBaseAPP().start(8081, "test_group", "test_topic", args, OffsetsInitializer.earliest());
+        new OdsBaseAPP().start(8081, args);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class OdsBaseAPP extends BaseAPP {
         // Transformation
         SingleOutputStreamOperator<String> result = ds
                 .map(v -> JSON.parseObject(v, SqlserverOrdersInputBean.class))
-                .process(new OdsOrdersProcessFunction());
+                .process(new OrdersProcessFunction());
 
         // Sink
         if (env instanceof LocalStreamEnvironment) {  // 在本地测试运行的逻辑

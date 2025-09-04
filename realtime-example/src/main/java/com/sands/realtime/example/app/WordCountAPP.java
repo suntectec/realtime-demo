@@ -30,7 +30,7 @@ $FLINK_HOME/usrlib/realtime-example/target/realtime-example-1.0-SNAPSHOT.jar
 public class WordCountAPP extends BaseAPP {
 
     public static void main(String[] args) throws Exception {
-        new WordCountAPP().start(8081, "test_group", "test_topic", args, OffsetsInitializer.earliest());
+        new WordCountAPP().start(8081, args);
     }
 
     @Override
