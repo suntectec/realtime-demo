@@ -63,12 +63,18 @@ Upload Jar and Specify Destination Main Class
 
 **Way.2 Using Command Line**
 
-SCP Uploading Jar and Use `flink run -c`
+SCP Upload jar from realtime-common -> $FLINK_HOME/lib
 
-realtime-common -> $FLINK_HOME/lib
 ```shell
 scp realtime-common/target/realtime-common-1.0-SNAPSHOT.jar Data.Eng@192.168.138.15:/opt/poc-allin1/native/flink/flink-1.20.1/lib/common/
 ```
+
+Restart Flink Cluster
+```
+$FLINK_HOME/bin/stop-cluster.sh && $FLINK_HOME/bin/start-cluster.sh
+```
+
+Use `flink run -c` to Specify Destination Main Class
 
 ```
 $FLINK_HOME/bin/flink run \

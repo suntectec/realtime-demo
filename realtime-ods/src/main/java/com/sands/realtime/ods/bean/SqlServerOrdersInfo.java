@@ -1,4 +1,4 @@
-package com.sands.realtime.common.bean.ods;
+package com.sands.realtime.ods.bean;
 
 import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class SqlserverOrdersInfo {
+public class SqlServerOrdersInfo {
 
     @JSONField(name = "id")
     private String id;

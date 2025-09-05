@@ -56,12 +56,8 @@ public class SqlserverDeserializationSchema implements DebeziumDeserializationSc
         resultMap.put("tableCatalog", tableCatalog);
         resultMap.put("tableSchema", tableSchema);
         resultMap.put("tableName", tableName);
-        // sourceTimestamp source.ts_ms, ingestionTimestamp ts_ms: Long -> DateTime
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String sourceDateTime = dateTimeFormatter.format(Instant.ofEpochMilli(sourceTsMs).atZone(ZoneId.systemDefault()));
-        String ingestionDateTime = dateTimeFormatter.format(Instant.ofEpochMilli(tsMs).atZone(ZoneId.systemDefault()));
-        resultMap.put("sourceDateTime", sourceDateTime);
-        resultMap.put("ingestionDateTime", ingestionDateTime);
+        resultMap.put("sourceTime", sourceTsMs);
+        resultMap.put("ingestionTime", tsMs);
 
         // 新增,更新或者初始化
         if (op.equals(Envelope.Operation.CREATE.name()) || op.equals(Envelope.Operation.READ.name()) || op.equals(Envelope.Operation.UPDATE.name())) {
