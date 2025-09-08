@@ -87,7 +87,7 @@ public abstract class BaseAPP {
 
             env.configure(config);
 
-            log.info("flink提交作业模式：--本地");
+            log.info("flink提交作业模式：--本地" + parameters.get("env"));
         } else { // 在集群运行的逻辑
             // 设置状态后端
             Configuration config = new Configuration();
@@ -108,7 +108,7 @@ public abstract class BaseAPP {
 
             env.configure(config);
 
-            log.info("flink提交作业模式：--集群");
+            log.info("flink提交作业模式：--集群" + parameters.get("env"));
         }
 
         // 2. 读取数据 3. 核心业务处理逻辑  4. 数据输出
