@@ -2,8 +2,9 @@ package com.sands.realtime.ods.app;
 
 import com.alibaba.fastjson2.JSON;
 import com.sands.realtime.common.base.BaseAPP;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersInfo;
 import com.sands.realtime.common.constant.SqlServerConstant;
-import com.sands.realtime.ods.bean.SqlServerOrdersBean;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersBean;
 import com.sands.realtime.ods.function.OrdersProcessFunction;
 import com.sands.realtime.ods.source.SqlServerOdsSource;
 import lombok.extern.slf4j.Slf4j;
@@ -55,24 +56,29 @@ public class OdsBaseAPP1 extends BaseAPP {
 
         // Source
         // 使用自定义 SqlServer Line Debezium Schema 和 时间日期 Converter
-        DataStreamSource<String> dss = env.fromSource(SqlServerOdsSource.getSqlServerOdsSource(parameters, SqlServerConstant.SQLSERVER_SOURCE_DB, SqlServerConstant.SQLSERVER_SOURCE_TB, StartupOptions.initial()),
+        DataStreamSource<String> ds = env.fromSource(SqlServerOdsSource.getSqlServerOdsSource(parameters, SqlServerConstant.SQLSERVER_SOURCE_DB, SqlServerConstant.SQLSERVER_SOURCE_TB, StartupOptions.initial()),
                 WatermarkStrategy.noWatermarks(), "SqlServer Source");
+        ds.print(">ds>");
 
         log.info("=========================== SqlServerCDCSourceStarted ==================================");
 
-        dss.print(">dss>");
         // Transformation
-        SingleOutputStreamOperator<String> result = dss
-                .map(line -> JSON.parseObject(line, SqlServerOrdersBean.class))
-                .process(new OrdersProcessFunction());
+        SingleOutputStreamOperator<SqlServerOrdersBean> beanDS = ds
+                .map(line -> JSON.parseObject(line, SqlServerOrdersBean.class));
+        beanDS.print(">beadDS>");
 
-        result.print(">result>");
+        SingleOutputStreamOperator<SqlServerOrdersInfo> infoDS = beanDS
+                .process(new OrdersProcessFunction());
+        infoDS.print(">infoDS>");
+
+        SingleOutputStreamOperator<String> resultDS = infoDS.map(JSON::toJSONString);
+        resultDS.print(">resultDS>");
 
         // Sink
         // if (env instanceof LocalStreamEnvironment) { // 在本地测试运行的逻辑
-        //     result.print(">result>");
+        //     resultDS.print(">resultDS>");
         // } else { // 写入kafka
-        //     result.sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.TOPIC_ODS_ORDERS)).name("sink_ods_orders_topic");
+        //     resultDS.sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.TOPIC_ODS_ORDERS)).name("sink_ods_orders_topic");
         // }
 
         env.disableOperatorChaining();

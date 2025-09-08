@@ -1,10 +1,7 @@
 package com.sands.realtime.common.bean.ods;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Map;
 
@@ -15,7 +12,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@Builder
 public class SqlServerEventData {
 
     @JsonProperty("before")

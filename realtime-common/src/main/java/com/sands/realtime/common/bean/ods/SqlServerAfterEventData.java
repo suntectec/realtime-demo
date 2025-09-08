@@ -1,9 +1,6 @@
 package com.sands.realtime.common.bean.ods;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * @author Jagger
@@ -12,7 +9,7 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@Builder
 public class SqlServerAfterEventData {
 
     private String id;

@@ -1,8 +1,9 @@
 package com.sands.realtime.ods.function;
 
 import com.alibaba.fastjson2.JSON;
-import com.sands.realtime.ods.bean.SqlServerOrdersBean;
-import com.sands.realtime.ods.bean.SqlServerOrdersInfo;
+
+import com.sands.realtime.common.bean.ods.SqlServerOrdersBean;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersInfo;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
@@ -16,10 +17,10 @@ import java.time.format.DateTimeFormatter;
  * @author Jagger
  * @since 2025/8/26 14:40
  */
-public class OrdersProcessFunction extends ProcessFunction<SqlServerOrdersBean, String> {
+public class OrdersProcessFunction extends ProcessFunction<SqlServerOrdersBean, SqlServerOrdersInfo> {
 
     @Override
-    public void processElement(SqlServerOrdersBean sqlServerOrdersBean, ProcessFunction<SqlServerOrdersBean, String>.Context context, Collector<String> collector) throws Exception {
+    public void processElement(SqlServerOrdersBean sqlServerOrdersBean, ProcessFunction<SqlServerOrdersBean, SqlServerOrdersInfo>.Context context, Collector<SqlServerOrdersInfo> collector) throws Exception {
 
         // 添加空值检查
         if (sqlServerOrdersBean == null || sqlServerOrdersBean.getAfter() == null) {
@@ -28,14 +29,14 @@ public class OrdersProcessFunction extends ProcessFunction<SqlServerOrdersBean, 
             return; // 跳过这条记录
         }
         SqlServerOrdersInfo after = sqlServerOrdersBean.getAfter();
-        after.set_rowKind(sqlServerOrdersBean.getOp());
+        after.set_row_kind(sqlServerOrdersBean.getOp());
 
         // System TimeStamp, Long -> DateTime
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String procTime = dateTimeFormatter.format(Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneId.systemDefault()));
-        after.set_procTime(procTime);
+        after.set_proc_time(procTime);
 
-        collector.collect(JSON.toJSONString(sqlServerOrdersBean));
+        collector.collect(sqlServerOrdersBean.getAfter());
 
     }
 
