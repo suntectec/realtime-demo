@@ -12,6 +12,8 @@
         <module>realtime-example</module>
         <module>realtime-common</module>
         <module>realtime-ods</module>
+        <module>realtime-json-parent</module>
+        <module>realtime-json-children</module>
     </modules>
 
     <properties>
