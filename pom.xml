@@ -12,8 +12,6 @@
         <module>realtime-example</module>
         <module>realtime-common</module>
         <module>realtime-ods</module>
-        <module>realtime-json-parent</module>
-        <module>realtime-json-children</module>
     </modules>
 
     <properties>
@@ -28,7 +26,7 @@
         <paimon.version>1.2.0</paimon.version>
         <scala.binary.version>2.12</scala.binary.version>
         <flink.shaded.version>17.0</flink.shaded.version>
-        <fastjson2.version>2.0.58</fastjson2.version>
+        <fastjson.version>2.0.58</fastjson.version>
         <log4j.version>2.17.1</log4j.version>
     </properties>
     <!-- 公共的依赖，所有模块都依赖  -->
@@ -121,9 +119,9 @@
         </dependency>
         <!-- 阿里JSON解析工具 -->
         <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>${fastjson2.version}</version>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
         </dependency>
         <!-- apache操作bean对象工具 -->
         <dependency>

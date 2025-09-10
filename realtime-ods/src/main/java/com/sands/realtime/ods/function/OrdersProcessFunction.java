@@ -1,7 +1,5 @@
 package com.sands.realtime.ods.function;
 
-import com.alibaba.fastjson2.JSON;
-
 import com.sands.realtime.common.bean.ods.SqlServerOrdersBean;
 import com.sands.realtime.common.bean.ods.SqlServerOrdersInfo;
 import org.apache.flink.streaming.api.functions.ProcessFunction;

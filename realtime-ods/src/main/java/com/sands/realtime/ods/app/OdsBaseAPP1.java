@@ -1,6 +1,6 @@
 package com.sands.realtime.ods.app;
 
-import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson.JSON;
 import com.sands.realtime.common.base.BaseAPP;
 import com.sands.realtime.common.bean.ods.SqlServerOrdersInfo;
 import com.sands.realtime.common.constant.SqlServerConstant;

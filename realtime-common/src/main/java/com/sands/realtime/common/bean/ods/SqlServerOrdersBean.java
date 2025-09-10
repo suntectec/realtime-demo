@@ -1,6 +1,6 @@
 package com.sands.realtime.common.bean.ods;
 
-import com.alibaba.fastjson2.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,18 +19,21 @@ import java.util.Date;
 @Builder
 public class SqlServerOrdersBean {
 
-    @JSONField(name = "ingestionTime", format = "yyyy-MM-dd HH:mm:ss")
+    @JSONField(name = "ingestion_time", format = "yyyy-MM-dd HH:mm:ss")
     private Date ingestionTime;
 
     private String op;
 
-    @JSONField(name = "sourceTime", format = "yyyy-MM-dd HH:mm:ss")
+    @JSONField(name = "source_time", format = "yyyy-MM-dd HH:mm:ss")
     private Date sourceTime;
 
+    @JSONField(name = "table_catalog")
     private String tableCatalog;
 
+    @JSONField(name = "table_schema")
     private String tableSchema;
 
+    @JSONField(name = "table_name")
     private String tableName;
 
     private SqlServerOrdersInfo after;
