@@ -1,13 +1,11 @@
 package com.sands.realtime.ods.function;
 
-import com.sands.realtime.common.bean.ods.SqlServerOrdersBean;
-import com.sands.realtime.common.bean.ods.SqlServerOrdersInfo;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersAfterInfo;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  * 获取 debezium 中 after 为表数据，添加额外信息构造表数据
@@ -15,10 +13,10 @@ import java.time.format.DateTimeFormatter;
  * @author Jagger
  * @since 2025/8/26 14:40
  */
-public class OrdersProcessFunction extends ProcessFunction<SqlServerOrdersBean, SqlServerOrdersInfo> {
+public class OrdersProcessFunction extends ProcessFunction<SqlServerOrdersEventData, SqlServerOrdersAfterInfo> {
 
     @Override
-    public void processElement(SqlServerOrdersBean sqlServerOrdersBean, ProcessFunction<SqlServerOrdersBean, SqlServerOrdersInfo>.Context context, Collector<SqlServerOrdersInfo> collector) throws Exception {
+    public void processElement(SqlServerOrdersEventData sqlServerOrdersBean, ProcessFunction<SqlServerOrdersEventData, SqlServerOrdersAfterInfo>.Context context, Collector<SqlServerOrdersAfterInfo> collector) throws Exception {
 
         // 添加空值检查
         if (sqlServerOrdersBean == null || sqlServerOrdersBean.getAfter() == null) {
@@ -26,13 +24,12 @@ public class OrdersProcessFunction extends ProcessFunction<SqlServerOrdersBean, 
             System.err.println("Warning: Received null data or info is null: " + sqlServerOrdersBean);
             return; // 跳过这条记录
         }
-        SqlServerOrdersInfo after = sqlServerOrdersBean.getAfter();
+        SqlServerOrdersAfterInfo after = sqlServerOrdersBean.getAfter();
         after.set_row_kind(sqlServerOrdersBean.getOp());
 
-        // System TimeStamp, Long -> DateTime
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String procTime = dateTimeFormatter.format(Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneId.systemDefault()));
-        after.set_proc_time(procTime);
+        after.set_source_time(sqlServerOrdersBean.getSourceTime());
+        after.set_ingestion_time(sqlServerOrdersBean.getIngestionTime());
+        after.set_process_time(new Date());
 
         collector.collect(sqlServerOrdersBean.getAfter());
 

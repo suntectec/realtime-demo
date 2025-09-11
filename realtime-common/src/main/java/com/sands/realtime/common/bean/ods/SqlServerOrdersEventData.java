@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-
 /**
  * @author Jagger
  * @since 2025/8/22 15:13
@@ -17,7 +16,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SqlServerOrdersBean {
+public class SqlServerOrdersEventData {
 
     @JSONField(name = "ingestion_time", format = "yyyy-MM-dd HH:mm:ss")
     private Date ingestionTime;
@@ -36,6 +35,6 @@ public class SqlServerOrdersBean {
     @JSONField(name = "table_name")
     private String tableName;
 
-    private SqlServerOrdersInfo after;
+    private SqlServerOrdersAfterInfo after;
 
 }

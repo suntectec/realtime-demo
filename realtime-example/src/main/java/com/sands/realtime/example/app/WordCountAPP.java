@@ -8,7 +8,6 @@ import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -59,7 +58,7 @@ public class WordCountAPP extends BaseAPP {
         } else {
             resultDS
                     .map(Tuple2::toString)
-                    .sinkTo(FlinkSinkUtil.getKafkaSink(parameter, TopicConstant.TOPIC_ODS_SOCKET)).name("sink_ods_socket_topic");
+                    .sinkTo(FlinkSinkUtil.getKafkaSink(parameter, TopicConstant.ODS_SOCKET_TOPIC)).name("sink_ods_socket_topic");
         }
 
         env.disableOperatorChaining();

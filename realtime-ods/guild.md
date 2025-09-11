@@ -4,6 +4,6 @@ scp target/realtime-ods-1.0-SNAPSHOT.jar Data.Eng@192.168.138.15:/opt/poc-allin1
 
 ```
 $FLINK_HOME/bin/flink run \
--c com.sands.realtime.ods.app.OdsBaseAPP1 \
+-c com.sands.realtime.ods.app.OdsBaseAPP \
 $FLINK_HOME/usrlib/realtime-ods-1.0-SNAPSHOT.jar
 ```
