@@ -1,4 +1,4 @@
-package com.sands.realtime.ods.app;
+package com.sands.realtime.ods.sqlserver.app;
 
 import com.alibaba.fastjson.JSON;
 import com.sands.realtime.common.base.BaseAPP;
@@ -7,8 +7,8 @@ import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
 import com.sands.realtime.common.constant.SqlServerConstant;
 import com.sands.realtime.common.constant.TopicConstant;
 import com.sands.realtime.common.utils.FlinkSinkUtil;
-import com.sands.realtime.ods.function.OrdersProcessFunction;
-import com.sands.realtime.ods.source.SqlServerOdsSource;
+import com.sands.realtime.ods.sqlserver.function.OrdersProcessFunction;
+import com.sands.realtime.ods.sqlserver.source.SqlServerOdsSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.Types;
