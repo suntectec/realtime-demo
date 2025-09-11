@@ -9,24 +9,32 @@ import org.apache.flink.cdc.connectors.sqlserver.source.SqlServerSourceBuilder.S
 import java.util.Properties;
 
 /**
- * 一个 sqlserver 源，使用了自定义的 debezium deserialization schema 和 datetime converter
- *
  * @author Jagger
  * @since 2025/8/19 11:17
  */
-public class SqlserverOdsSource {
-    public static SqlServerIncrementalSource<String> getSqlServerOdsSource(ParameterTool parameter, String  databaseList, String tableList) {
+public class SqlServerOdsSource {
+
+    /**
+     * 一个 sqlserver 源，使用了自定义的 debezium deserialization schema 和 datetime converter
+     *
+     * @param parameters
+     * @param databaseList
+     * @param tableList
+     * @return
+     */
+    public static SqlServerIncrementalSource<String> getSqlServerOdsSource(
+            ParameterTool parameters, String  databaseList, String tableList, StartupOptions startupOptions) {
         SqlServerIncrementalSource<String> sqlServerSource =
                 new SqlServerSourceBuilder<String>()
-                        .hostname(parameter.get("sqlserver.host"))
-                        .port(parameter.getInt("sqlserver.port"))
-                        .username(parameter.get("sqlserver.username"))
-                        .password(parameter.get("sqlserver.password"))
+                        .hostname(parameters.get("sqlserver.host"))
+                        .port(parameters.getInt("sqlserver.port"))
                         .databaseList(databaseList)
                         .tableList(tableList)
+                        .username(parameters.get("sqlserver.username"))
+                        .password(parameters.get("sqlserver.password"))
                         .deserializer(new SqlserverDeserializationSchema())
                         .debeziumProperties(getDebeziumProperties())
-                        .startupOptions(StartupOptions.initial())
+                        .startupOptions(startupOptions)
                         .build();
         return sqlServerSource;
     }
@@ -34,7 +42,7 @@ public class SqlserverOdsSource {
     public static Properties getDebeziumProperties() {
         Properties properties = new Properties();
         properties.put("converters", "sqlserverDebeziumConverter");
-        properties.put("sqlserverDebeziumConverter.type", "com.sands.realtime.ods.converter.DateTimeDebeziumConverter");
+        properties.put("sqlserverDebeziumConverter.type", "com.sands.realtime.ods.converter.DataDateTimeDebeziumConverter");
         properties.put("sqlserverDebeziumConverter.database.type", "sqlserver");
         // 自定义格式，可选
         properties.put("sqlserverDebeziumConverter.format.date", "yyyy-MM-dd");

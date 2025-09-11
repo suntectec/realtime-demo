@@ -26,8 +26,7 @@
         <paimon.version>1.2.0</paimon.version>
         <scala.binary.version>2.12</scala.binary.version>
         <flink.shaded.version>17.0</flink.shaded.version>
-        <fastjson2.version>2.0.57</fastjson2.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <fastjson.version>2.0.58</fastjson.version>
         <log4j.version>2.17.1</log4j.version>
     </properties>
     <!-- 公共的依赖，所有模块都依赖  -->
@@ -79,6 +78,32 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Flink 日志 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <version>${log4j.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!--扩展工具-->
         <!-- java.lang SDK扩展包 -->
         <dependency>
@@ -94,9 +119,9 @@
         </dependency>
         <!-- 阿里JSON解析工具 -->
         <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>${fastjson2.version}</version>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
         </dependency>
         <!-- apache操作bean对象工具 -->
         <dependency>
@@ -179,31 +204,6 @@
                 <artifactId>flink-shaded-hadoop-3-uber</artifactId>
                 <version>3.1.1.7.2.9.0-173-9.0</version>
             </dependency>
-
-            <!-- flink 日志 -->
-            <!-- 日志门面 -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <!-- 桥接器 -->
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-slf4j-impl</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-            <!-- log4j2的jar包 -->
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -233,6 +233,7 @@
                                     <!--<exclude>com.squareup.okhttp:okhttp</exclude>-->
 
                                     <exclude>com.google.code.findbugs:jsr305</exclude>
+                                    <!--flink使用集群中flink/plugins/s3-fs-hadoop/的jar-->
                                     <exclude>org.apache.flink:flink-shaded-hadoop-3-uber</exclude>
                                     <exclude>org.apache.flink:flink-s3-fs-hadoop</exclude>
                                 </excludes>

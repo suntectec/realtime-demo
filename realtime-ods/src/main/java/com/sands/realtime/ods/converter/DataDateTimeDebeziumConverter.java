@@ -17,7 +17,7 @@ import java.util.Properties;
  * @since 2025/8/22 15:32
  */
 @Slf4j
-public class DateTimeDebeziumConverter implements CustomConverter<SchemaBuilder, RelationalColumn> {
+public class DataDateTimeDebeziumConverter implements CustomConverter<SchemaBuilder, RelationalColumn> {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final String TIME_FORMAT = "HH:mm:ss";

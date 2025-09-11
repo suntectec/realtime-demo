@@ -1,14 +1,11 @@
 package com.sands.realtime.ods.function;
 
-import com.alibaba.fastjson2.JSON;
-import com.sands.realtime.common.bean.ods.SqlserverOrdersBean;
-import com.sands.realtime.common.bean.ods.SqlserverOrdersInfo;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersAfterInfo;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  * 获取 debezium 中 after 为表数据，添加额外信息构造表数据
@@ -16,18 +13,25 @@ import java.time.format.DateTimeFormatter;
  * @author Jagger
  * @since 2025/8/26 14:40
  */
-public class OrdersProcessFunction extends ProcessFunction<SqlserverOrdersBean, String> {
+public class OrdersProcessFunction extends ProcessFunction<SqlServerOrdersEventData, SqlServerOrdersAfterInfo> {
 
     @Override
-    public void processElement(SqlserverOrdersBean sqlserverOrdersBean, ProcessFunction<SqlserverOrdersBean, String>.Context context, Collector<String> collector) throws Exception {
+    public void processElement(SqlServerOrdersEventData sqlServerOrdersBean, ProcessFunction<SqlServerOrdersEventData, SqlServerOrdersAfterInfo>.Context context, Collector<SqlServerOrdersAfterInfo> collector) throws Exception {
 
-        sqlserverOrdersBean.getAfter().set_rowKind(sqlserverOrdersBean.getOp());
-        // System TimeStamp, Long -> DateTime
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String procTime = dateTimeFormatter.format(Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneId.systemDefault()));
-        sqlserverOrdersBean.getAfter().set_procTime(procTime);
+        // 添加空值检查
+        if (sqlServerOrdersBean == null || sqlServerOrdersBean.getAfter() == null) {
+            // 可以选择记录日志、跳过或者处理异常数据
+            System.err.println("Warning: Received null data or info is null: " + sqlServerOrdersBean);
+            return; // 跳过这条记录
+        }
+        SqlServerOrdersAfterInfo after = sqlServerOrdersBean.getAfter();
+        after.set_row_kind(sqlServerOrdersBean.getOp());
 
-        collector.collect(JSON.toJSONString(sqlserverOrdersBean.getAfter()));
+        after.set_source_time(sqlServerOrdersBean.getSourceTime());
+        after.set_ingestion_time(sqlServerOrdersBean.getIngestionTime());
+        after.set_process_time(new Date());
+
+        collector.collect(sqlServerOrdersBean.getAfter());
 
     }
 

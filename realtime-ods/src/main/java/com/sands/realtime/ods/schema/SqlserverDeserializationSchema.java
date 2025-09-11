@@ -1,7 +1,6 @@
 package com.sands.realtime.ods.schema;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONWriter;
+import com.alibaba.fastjson.JSON;
 import io.debezium.data.Envelope;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -53,15 +52,11 @@ public class SqlserverDeserializationSchema implements DebeziumDeserializationSc
         String tableName = source.getString("table");
         Long sourceTsMs = source.getInt64("ts_ms"); // 获取source.ts_ms: 源系统创建事件的时间戳。对应于Debezium记录中的source.ts_ts字段。在数据库中进行更改的时间戳
         Long tsMs = struct.getInt64("ts_ms"); // 获取ts_ms: 连接器处理事件时的时间戳。对应于Debezium记录中的ts_ms字段。连接器处理事件的JVM系统时钟时间戳
-        resultMap.put("tableCatalog", tableCatalog);
-        resultMap.put("tableSchema", tableSchema);
-        resultMap.put("tableName", tableName);
-        // sourceTimestamp source.ts_ms, ingestionTimestamp ts_ms: Long -> DateTime
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String sourceDateTime = dateTimeFormatter.format(Instant.ofEpochMilli(sourceTsMs).atZone(ZoneId.systemDefault()));
-        String ingestionDateTime = dateTimeFormatter.format(Instant.ofEpochMilli(tsMs).atZone(ZoneId.systemDefault()));
-        resultMap.put("sourceDateTime", sourceDateTime);
-        resultMap.put("ingestionDateTime", ingestionDateTime);
+        resultMap.put("table_catalog", tableCatalog);
+        resultMap.put("table_schema", tableSchema);
+        resultMap.put("table_name", tableName);
+        resultMap.put("source_time", sourceTsMs);
+        resultMap.put("ingestion_time", tsMs);
 
         // 新增,更新或者初始化
         if (op.equals(Envelope.Operation.CREATE.name()) || op.equals(Envelope.Operation.READ.name()) || op.equals(Envelope.Operation.UPDATE.name())) {
@@ -87,7 +82,7 @@ public class SqlserverDeserializationSchema implements DebeziumDeserializationSc
             }
         }
 
-        collector.collect(JSON.toJSONString(resultMap, JSONWriter.Feature.FieldBased, JSONWriter.Feature.LargeObject));
+        collector.collect(JSON.toJSONString(resultMap));
     }
 
     @Override

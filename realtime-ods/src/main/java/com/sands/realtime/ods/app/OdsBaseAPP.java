@@ -1,16 +1,19 @@
 package com.sands.realtime.ods.app;
 
-import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson.JSON;
 import com.sands.realtime.common.base.BaseAPP;
-import com.sands.realtime.common.bean.ods.SqlserverOrdersBean;
-import com.sands.realtime.common.constant.SqlserverConstant;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersAfterInfo;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
+import com.sands.realtime.common.constant.SqlServerConstant;
 import com.sands.realtime.common.constant.TopicConstant;
 import com.sands.realtime.common.utils.FlinkSinkUtil;
 import com.sands.realtime.ods.function.OrdersProcessFunction;
-import com.sands.realtime.ods.source.SqlserverOdsSource;
+import com.sands.realtime.ods.source.SqlServerOdsSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.cdc.connectors.base.options.StartupOptions;
 import org.apache.flink.core.execution.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -18,15 +21,10 @@ import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 /**
- * 将 flink sqlserver cdc debezium 数据转化成表数据写入 kafka
+ * 将 flink sqlserver cdc debezium 写入 kafka
  *
  * @author Jagger
  * @since 2025/9/2 9:22
- * 程序启动：
-$FLINK_HOME/bin/flink run \
--m localhost:8081 \
--c com.sands.realtime.ods.app.OdsBaseAPP \
-$FLINK_HOME/usrlib/realtime-ods/target/realtime-ods-1.0-SNAPSHOT.jar
  */
 @Slf4j
 public class OdsBaseAPP extends BaseAPP {
@@ -56,19 +54,26 @@ public class OdsBaseAPP extends BaseAPP {
 
         // Source
         // 使用自定义 SqlServer Line Debezium Schema 和 时间日期 Converter
-        DataStreamSource<String> ds = env.fromSource(SqlserverOdsSource.getSqlServerOdsSource(parameters, SqlserverConstant.SQLSERVER_SOURCE_DB, SqlserverConstant.SQLSERVER_SOURCE_TB), WatermarkStrategy.noWatermarks(), "SqlServer Source");
+        DataStreamSource<String> source = env.fromSource(SqlServerOdsSource.getSqlServerOdsSource(parameters, SqlServerConstant.SQLSERVER_SOURCE_DB, SqlServerConstant.SQLSERVER_SOURCE_TB, StartupOptions.initial()),
+                WatermarkStrategy.noWatermarks(), "SqlServer Source");
+        source.print(">source>");
 
         log.info("=========================== SqlServerCDCSourceStarted ==================================");
+
         // Transformation
-        SingleOutputStreamOperator<String> result = ds
-                .map(v -> JSON.parseObject(v, SqlserverOrdersBean.class))
-                .process(new OrdersProcessFunction());
+        SingleOutputStreamOperator<SqlServerOrdersAfterInfo> infoDS = source
+                .map(line -> JSON.parseObject(line, SqlServerOrdersEventData.class))
+                .returns(Types.POJO(SqlServerOrdersEventData.class))
+                .process(new OrdersProcessFunction())
+                .returns(Types.POJO(SqlServerOrdersAfterInfo.class));
+
+        SingleOutputStreamOperator<String> sink = infoDS.map(JSON::toJSONString);
 
         // Sink
         if (env instanceof LocalStreamEnvironment) { // 在本地测试运行的逻辑
-            result.print(">result>");
+            sink.print(">result>");
         } else { // 写入kafka
-            result.sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.TOPIC_ODS_ORDERS)).name("sink_ods_orders_topic");
+            sink.sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.ODS_ORDERS_TOPIC)).name("sink_ods_orders_topic");
         }
 
         env.disableOperatorChaining();
