@@ -2,6 +2,7 @@
 
 ![Static Badge](https://img.shields.io/badge/Apache-Paimon-blue?logo=apache&logoColor=%23E6526F&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Apache-Flink-blue?logo=apache&logoColor=%23E6526F&labelColor=black)
+![Static Badge](https://img.shields.io/badge/Apache-Kafka-blue?logo=apache&logoColor=%23E6526F&labelColor=black)
 
 ## Modules Here:
 
