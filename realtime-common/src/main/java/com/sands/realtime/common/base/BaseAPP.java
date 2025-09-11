@@ -95,8 +95,8 @@ public abstract class BaseAPP {
             config.set(StateBackendOptions.STATE_BACKEND, "rocksdb");
             config.set(CheckpointingOptions.CHECKPOINT_STORAGE, "filesystem");
             // Use S3 as checkpoint storage
-            config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "s3://lakehouse/flink/flink-checkpoints");
-            config.set(CheckpointingOptions.SAVEPOINT_DIRECTORY, "s3://lakehouse/flink/flink-savepoints");
+            config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "s3://lakehouse/flink/flink-checkpoints" + this.getClass().getSimpleName());
+            config.set(CheckpointingOptions.SAVEPOINT_DIRECTORY, "s3://lakehouse/flink/flink-savepoints" + this.getClass().getSimpleName());
             config.setString("s3.access.key", "minioadmin");
             config.setString("s3.secret.key", "minioadmin");
             config.setString("s3.endpoint", "http://192.168.138.15:9000");
