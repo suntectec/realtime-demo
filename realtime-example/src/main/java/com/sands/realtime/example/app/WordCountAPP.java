@@ -38,7 +38,7 @@ public class WordCountAPP extends BaseAPP {
 
         // Source
         KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource(parameters.get("kafka.broker"), "test_group", "test_topic", OffsetsInitializer.earliest());
-        DataStreamSource<String> dss = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "kafka-source");
+        DataStreamSource<String> dss = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
         // Transformation
         SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOneDS = dss
