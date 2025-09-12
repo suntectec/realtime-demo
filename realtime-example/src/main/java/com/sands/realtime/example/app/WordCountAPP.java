@@ -33,15 +33,15 @@ public class WordCountAPP extends BaseAPP {
     }
 
     @Override
-    public void handle(StreamExecutionEnvironment env, ParameterTool parameter) {
+    public void handle(StreamExecutionEnvironment env, ParameterTool parameters) {
         env.setParallelism(1);
 
         // Source
-        KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource(parameter.get("kafka.broker"), "test_group", "test_topic", OffsetsInitializer.earliest());
-        DataStreamSource<String> dss = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "kafka-source");
+        KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource(parameters.get("kafka.broker"), "test_group", "test_topic", OffsetsInitializer.earliest());
+        DataStreamSource<String> source = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
         // Transformation
-        SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOneDS = dss
+        SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOneDS = source
                 .flatMap((String line, Collector<Tuple2<String, Integer>> out) -> {
                     String[] words = line.split(" ");
                     for (String word : words) {
@@ -50,15 +50,15 @@ public class WordCountAPP extends BaseAPP {
                 }).returns(Types.TUPLE(Types.STRING, Types.INT)).name("wordAndOne");
 
         // 进行分组聚合(keyBy：将key相同的分到一个组中)
-        SingleOutputStreamOperator<Tuple2<String, Integer>> resultDS = wordAndOneDS.keyBy(v -> v.f0).sum(1).name("wordCount");
+        SingleOutputStreamOperator<Tuple2<String, Integer>> sink = wordAndOneDS.keyBy(v -> v.f0).sum(1).name("wordCount");
 
         // Sink
         if (env instanceof LocalStreamEnvironment) {
-            resultDS.print();
+            sink.print(">sink>");
         } else {
-            resultDS
+            sink
                     .map(Tuple2::toString)
-                    .sinkTo(FlinkSinkUtil.getKafkaSink(parameter, TopicConstant.ODS_SOCKET_TOPIC)).name("sink_ods_socket_topic");
+                    .sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.ODS_SOCKET_TOPIC)).name("sink_ods_socket_topic");
         }
 
         env.disableOperatorChaining();

@@ -87,7 +87,9 @@ public abstract class BaseAPP {
 
             env.configure(config);
 
-            log.info("flink提交作业模式：--本地" + parameters.get("env"));
+            log.info("flink提交作业模式：--本地");
+            log.info("flink提交作业环境：--" + parameters.get("env"));
+            log.info("flink提交作业主类：--" + this.getClass().getSimpleName());
         } else { // 在集群运行的逻辑
             // 设置状态后端
             Configuration config = new Configuration();

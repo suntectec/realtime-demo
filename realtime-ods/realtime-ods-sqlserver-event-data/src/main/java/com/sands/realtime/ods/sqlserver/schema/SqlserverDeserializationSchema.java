@@ -1,4 +1,4 @@
-package com.sands.realtime.ods.schema;
+package com.sands.realtime.ods.sqlserver.schema;
 
 import com.alibaba.fastjson.JSON;
 import io.debezium.data.Envelope;

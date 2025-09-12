@@ -1,4 +1,4 @@
-package com.sands.realtime.ods.function;
+package com.sands.realtime.ods.sqlserver.function;
 
 import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
 import com.sands.realtime.common.bean.ods.SqlServerOrdersAfterInfo;

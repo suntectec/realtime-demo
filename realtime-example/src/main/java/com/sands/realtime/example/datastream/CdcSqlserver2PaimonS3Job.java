@@ -55,17 +55,17 @@ public class CdcSqlserver2PaimonS3Job {
         env.enableCheckpointing(3000);
 
         // set the source parallelism to 2
-        DataStreamSource<String> sourceDS = env.fromSource(
+        DataStreamSource<String> source = env.fromSource(
                 sqlServerSource,
                 WatermarkStrategy.noWatermarks(),
                 "SqlServerIncrementalSource");
-        sourceDS
+        source
                 .setParallelism(2)
-                .print()
+                .print(">source>")
                 .setParallelism(1);
 
         // String convert to RichCdcRecord
-        SingleOutputStreamOperator<RichCdcRecord> transformDS = sourceDS
+        SingleOutputStreamOperator<RichCdcRecord> transformDS = source
                 .map(JSON::parseObject)
                 .map(jsonObj -> {
                     var op = jsonObj.getString("op");

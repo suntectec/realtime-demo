@@ -91,8 +91,8 @@ $FLINK_HOME/bin/stop-cluster.sh && $FLINK_HOME/bin/start-cluster.sh
 Use `flink run -c` to Specify Destination Main Class
 
 ```
-$FLINK_HOME/bin/flink run \
+$FLINK_HOME/bin/flink run -d \
 -m localhost:8081 \
--c com.sands.realtime.ods.app.OdsBaseAPP \
-$FLINK_HOME/usrlib/realtime-ods-1.0-SNAPSHOT.jar
+-c com.sands.realtime.ods.sqlserver.app.OdsBaseAPP \
+$FLINK_HOME/usrlib/realtime-ods-sqlserver-event-data-1.0-SNAPSHOT.jar
 ```

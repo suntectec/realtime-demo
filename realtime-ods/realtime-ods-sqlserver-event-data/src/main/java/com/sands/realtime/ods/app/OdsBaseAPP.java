@@ -7,8 +7,8 @@ import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
 import com.sands.realtime.common.constant.SqlServerConstant;
 import com.sands.realtime.common.constant.TopicConstant;
 import com.sands.realtime.common.utils.FlinkSinkUtil;
-import com.sands.realtime.ods.function.OrdersProcessFunction;
-import com.sands.realtime.ods.source.SqlServerOdsSource;
+import com.sands.realtime.ods.sqlserver.function.OrdersProcessFunction;
+import com.sands.realtime.ods.sqlserver.source.SqlServerOdsSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -71,7 +71,7 @@ public class OdsBaseAPP extends BaseAPP {
 
         // Sink
         if (env instanceof LocalStreamEnvironment) { // 在本地测试运行的逻辑
-            sink.print(">result>");
+            sink.print(">sink>");
         } else { // 写入kafka
             sink.sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.ODS_ORDERS_TOPIC)).name("sink_ods_orders_topic");
         }
