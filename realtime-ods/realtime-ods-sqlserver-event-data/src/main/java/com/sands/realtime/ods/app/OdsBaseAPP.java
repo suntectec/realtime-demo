@@ -1,4 +1,4 @@
-package com.sands.realtime.ods.sqlserver.app;
+package com.sands.realtime.ods.app;
 
 import com.alibaba.fastjson.JSON;
 import com.sands.realtime.common.base.BaseAPP;

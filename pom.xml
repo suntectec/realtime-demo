@@ -77,6 +77,13 @@
             <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Flink Table Kafka Source Format Json -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-json</artifactId>
+            <version>${flink.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Flink 日志 -->
         <dependency>
