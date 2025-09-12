@@ -33,11 +33,11 @@ public class WordCountAPP extends BaseAPP {
     }
 
     @Override
-    public void handle(StreamExecutionEnvironment env, ParameterTool parameter) {
+    public void handle(StreamExecutionEnvironment env, ParameterTool parameters) {
         env.setParallelism(1);
 
         // Source
-        KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource(parameter.get("kafka.broker"), "test_group", "test_topic", OffsetsInitializer.earliest());
+        KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource(parameters.get("kafka.broker"), "test_group", "test_topic", OffsetsInitializer.earliest());
         DataStreamSource<String> dss = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "kafka-source");
 
         // Transformation
@@ -58,7 +58,7 @@ public class WordCountAPP extends BaseAPP {
         } else {
             resultDS
                     .map(Tuple2::toString)
-                    .sinkTo(FlinkSinkUtil.getKafkaSink(parameter, TopicConstant.ODS_SOCKET_TOPIC)).name("sink_ods_socket_topic");
+                    .sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.ODS_SOCKET_TOPIC)).name("sink_ods_socket_topic");
         }
 
         env.disableOperatorChaining();
