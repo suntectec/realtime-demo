@@ -71,7 +71,7 @@ public class OdsBaseAPP extends BaseAPP {
 
         // Sink
         if (env instanceof LocalStreamEnvironment) { // 在本地测试运行的逻辑
-            sink.print(">result>");
+            sink.print(">sink>");
         } else { // 写入kafka
             sink.sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.ODS_ORDERS_TOPIC)).name("sink_ods_orders_topic");
         }

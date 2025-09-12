@@ -38,10 +38,10 @@ public class WordCountAPP extends BaseAPP {
 
         // Source
         KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource(parameters.get("kafka.broker"), "test_group", "test_topic", OffsetsInitializer.earliest());
-        DataStreamSource<String> dss = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
+        DataStreamSource<String> source = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
         // Transformation
-        SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOneDS = dss
+        SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOneDS = source
                 .flatMap((String line, Collector<Tuple2<String, Integer>> out) -> {
                     String[] words = line.split(" ");
                     for (String word : words) {
@@ -50,13 +50,13 @@ public class WordCountAPP extends BaseAPP {
                 }).returns(Types.TUPLE(Types.STRING, Types.INT)).name("wordAndOne");
 
         // 进行分组聚合(keyBy：将key相同的分到一个组中)
-        SingleOutputStreamOperator<Tuple2<String, Integer>> resultDS = wordAndOneDS.keyBy(v -> v.f0).sum(1).name("wordCount");
+        SingleOutputStreamOperator<Tuple2<String, Integer>> sink = wordAndOneDS.keyBy(v -> v.f0).sum(1).name("wordCount");
 
         // Sink
         if (env instanceof LocalStreamEnvironment) {
-            resultDS.print();
+            sink.print(">sink>");
         } else {
-            resultDS
+            sink
                     .map(Tuple2::toString)
                     .sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.ODS_SOCKET_TOPIC)).name("sink_ods_socket_topic");
         }

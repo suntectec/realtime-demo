@@ -33,11 +33,11 @@ public class CdcSqlserver2ConsoleJob {
                 .startupOptions(StartupOptions.initial())
                 .build();
 
-        DataStreamSource<String> dataStreamSource = env
+        DataStreamSource<String> source = env
                 .fromSource(sqlServerIncrementalSource, WatermarkStrategy.noWatermarks(), "SqlServer Source")
                 .setParallelism(1);
 
-        dataStreamSource.print().setParallelism(1);
+        source.print(">source>").setParallelism(1);
 
         env.execute();
     }
