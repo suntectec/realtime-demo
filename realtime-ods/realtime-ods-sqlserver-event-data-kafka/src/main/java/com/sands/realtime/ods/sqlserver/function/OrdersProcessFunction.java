@@ -1,7 +1,7 @@
 package com.sands.realtime.ods.sqlserver.function;
 
-import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
 import com.sands.realtime.common.bean.ods.SqlServerOrdersAfterInfo;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
