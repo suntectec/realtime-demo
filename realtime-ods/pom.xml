@@ -12,9 +12,9 @@
     <artifactId>realtime-ods</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>realtime-ods-sqlserver-event-data-paimon</module>
-        <module>realtime-ods-sqlserver-event-data-sqlserver</module>
-        <module>realtime-ods-sqlserver-event-data-kafka</module>
+        <module>realtime-ods-kafka-edinfo-paimon</module>
+        <module>realtime-ods-kafka-edinfo-sqlserver</module>
+        <module>realtime-ods-sqlserver-eventdata-kafka</module>
     </modules>
 
     <properties>

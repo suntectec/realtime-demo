@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>realtime-ods-sqlserver-event-data-sqlserver</artifactId>
+    <artifactId>realtime-ods-kafka-edinfo-sqlserver</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>

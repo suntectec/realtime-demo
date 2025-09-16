@@ -27,10 +27,10 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
  * @since 2025/9/2 9:22
  */
 @Slf4j
-public class OdsBaseAPP extends BaseAPP {
+public class OdsSqlServerToKafkaAPP extends BaseAPP {
 
     public static void main(String[] args) throws Exception {
-        new OdsBaseAPP().start(8081, args);
+        new OdsSqlServerToKafkaAPP().start(8081, args);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class OdsBaseAPP extends BaseAPP {
                 WatermarkStrategy.noWatermarks(), "SqlServer Source");
         source.print(">source>");
 
-        log.info("=========================== SqlServerCDCSourceStarted ==================================");
+        log.info("==================== SqlServerCDCSourceStarted ====================");
 
         // Transformation
         SingleOutputStreamOperator<SqlServerOrdersAfterInfo> infoDS = source
