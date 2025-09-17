@@ -1,7 +1,6 @@
 package com.sands.realtime.ods.app;
 
-import com.amazonaws.services.dynamodbv2.xspec.L;
-import com.sands.realtime.common.base.TableBaseAPP;
+import com.sands.realtime.common.base.BaseTableAPP;
 import com.sands.realtime.common.utils.ResourcesFileReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -19,18 +18,19 @@ import java.util.regex.Pattern;
  * @since 2025/9/12 15:28
  */
 @Slf4j
-public class OdsKafkaToSqlServerAPP1 extends TableBaseAPP {
+public class OdsKafkaToSqlServerAPP extends BaseTableAPP {
 
     public static void main(String[] args) throws Exception {
-        new OdsKafkaToSqlServerAPP1().start(8081, args);
+        new OdsKafkaToSqlServerAPP().start(8081, args);
     }
 
     @Override
     public void handle(StreamExecutionEnvironment env, StreamTableEnvironment tEnv, ParameterTool parameters) throws IOException {
 
-        String sourceTable = ResourcesFileReader.readResourcesFile("sql-scripts/source-table.sql");
+        ResourcesFileReader reader = new ResourcesFileReader();
+        String sourceTable = reader.read("sql-scripts/source-table.sql");
 
-        String sinkTable = ResourcesFileReader.readResourcesFile("sql-scripts/sink-table.sql");
+        String sinkTable = reader.read("sql-scripts/sink-table.sql");
 
         tEnv.executeSql(sourceTable);
         tEnv.executeSql(sinkTable);
@@ -49,23 +49,13 @@ public class OdsKafkaToSqlServerAPP1 extends TableBaseAPP {
             TableResult tableResult = null;
 
             if (env instanceof LocalStreamEnvironment) { // 本地只做源表查询
-                log.info("==================== 本地运行环境 ====================");
-                log.info("源表名: '" + sourceTableName + "'");
-                log.info("目标表名: '" + sinkTableName + "'");
-
-                tableResult = tEnv.sqlQuery(String.format("SELECT * FROM %s", sourceTableName)).execute();
-            } else if (env instanceof StreamExecutionEnvironment) {
-                log.info("==================== 集群运行环境 ====================");
-                log.info("源表名: '" + sourceTableName + "'");
-                log.info("目标表名: '" + sinkTableName + "'");
-
+                tEnv.sqlQuery(String.format("SELECT * FROM %s", sourceTableName)).execute().print();
+            } else { // 集群运行环境
                 tableResult = tEnv.executeSql(
                         String.format("INSERT INTO %s SELECT * FROM %s", sinkTableName, sourceTableName));
             }
 
             if (tableResult != null && tableResult.getJobClient().isPresent()) {
-                log.info("==================== Job Started Successfully ====================");
-                log.info("Job Name: " + this.getClass().getSimpleName());
                 log.info("Job ID: " + tableResult.getJobClient().get().getJobID());
                 log.info("Job Status: " + tableResult.getJobClient().get().getJobStatus());
             }

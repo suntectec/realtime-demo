@@ -1,7 +1,7 @@
 package com.sands.realtime.ods.app;
 
 import com.alibaba.fastjson.JSON;
-import com.sands.realtime.common.base.BaseAPP;
+import com.sands.realtime.common.base.BaseStreamAPP;
 import com.sands.realtime.common.bean.ods.SqlServerOrdersAfterInfo;
 import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
 import com.sands.realtime.common.constant.SqlServerConstant;
@@ -27,7 +27,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
  * @since 2025/9/2 9:22
  */
 @Slf4j
-public class OdsSqlServerToKafkaAPP extends BaseAPP {
+public class OdsSqlServerToKafkaAPP extends BaseStreamAPP {
 
     public static void main(String[] args) throws Exception {
         new OdsSqlServerToKafkaAPP().start(8081, args);
@@ -57,8 +57,6 @@ public class OdsSqlServerToKafkaAPP extends BaseAPP {
         DataStreamSource<String> source = env.fromSource(SqlServerOdsSource.getSqlServerOdsSource(parameters, SqlServerConstant.SQLSERVER_SOURCE_DB, SqlServerConstant.SQLSERVER_SOURCE_TB, StartupOptions.initial()),
                 WatermarkStrategy.noWatermarks(), "SqlServer Source");
         source.print(">source>");
-
-        log.info("==================== SqlServerCDCSourceStarted ====================");
 
         // Transformation
         SingleOutputStreamOperator<SqlServerOrdersAfterInfo> infoDS = source

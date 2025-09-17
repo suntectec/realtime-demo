@@ -1,6 +1,8 @@
 package com.sands.realtime.common.base;
 
 import com.sands.realtime.common.utils.ParametersUtil;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.CheckpointingOptions;
@@ -11,21 +13,26 @@ import org.apache.flink.core.execution.CheckpointingMode;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-
-import java.io.IOException;
 
 import static org.apache.flink.configuration.ExternalizedCheckpointRetention.RETAIN_ON_CANCELLATION;
 
 /**
- * BaseApp的设计初衷：
- *  因为flink编程的都是 source - Transformation - sink 编程模式，所有使用抽象类进行封装
+ * StreamBaseAPP 设计初衷：
+ *  StreamExecutionEnvironment 流策略
+ *  因为 flink 编程的都是 source - Transformation - sink 编程模式，所有使用抽象类进行封装
  *
  * @author Jagger
- * @since 2025/9/16 23:12
+ * @since 2025/9/17 9:17
  */
+@Setter
+@Getter
 @Slf4j
-public abstract class TableBaseAPP implements IBaseAPP {
+public abstract class BaseStreamAPP implements IBaseAPP {
+
+    /**
+     *  为非继承执行，调用方式，设置的作业名 JobName
+     */
+    private String jobName = this.getClass().getSimpleName();
 
     @Override
     public void start(int port, String[] args) throws Exception {
@@ -38,15 +45,11 @@ public abstract class TableBaseAPP implements IBaseAPP {
         Configuration conf = new Configuration();
         conf.set(RestOptions.BIND_PORT, String.valueOf(port));
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+
         // 1.2.1 本地运行环境添加 8081 WebUI
         if (env instanceof LocalStreamEnvironment) {
             env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
         }
-        // 1.2.2 表环境
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env);
-        tEnv.getConfig().set("parallelism.default", "1");
-        // set job name
-        tEnv.getConfig().set("pipeline.name", this.getClass().getSimpleName());
 
         // 1.3 将ParameterTool的参数设置成全局的参数
         // ParameterTool parameter = ParameterTool.fromArgs(args);
@@ -87,9 +90,9 @@ public abstract class TableBaseAPP implements IBaseAPP {
 
             env.configure(config);
 
-            log.info("flink提交作业模式：--本地");
-            log.info("flink提交作业环境：--" + parameters.get("env"));
-            log.info("flink提交作业主类：--" + this.getClass().getSimpleName());
+            log.info("Flink 提交作业模式：--本地");
+            log.info("Flink 提交作业环境：--" + parameters.get("env"));
+            log.info("Flink 提交作业主类：--" + jobName);
         } else { // 在集群运行的逻辑
             // 设置状态后端
             Configuration config = new Configuration();
@@ -97,8 +100,8 @@ public abstract class TableBaseAPP implements IBaseAPP {
             config.set(StateBackendOptions.STATE_BACKEND, "rocksdb");
             config.set(CheckpointingOptions.CHECKPOINT_STORAGE, "filesystem");
             // Use S3 as checkpoint storage
-            config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "s3://lakehouse/flink-checkpoints/" + this.getClass().getSimpleName());
-            config.set(CheckpointingOptions.SAVEPOINT_DIRECTORY, "s3://lakehouse/flink-savepoints/" + this.getClass().getSimpleName());
+            config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "s3://lakehouse/flink-checkpoints/" + jobName);
+            config.set(CheckpointingOptions.SAVEPOINT_DIRECTORY, "s3://lakehouse/flink-savepoints/" + jobName);
             config.setString("s3.access.key", "minioadmin");
             config.setString("s3.secret.key", "minioadmin");
             config.setString("s3.endpoint", "http://192.168.138.15:9000");
@@ -114,9 +117,23 @@ public abstract class TableBaseAPP implements IBaseAPP {
         }
 
         // 2. 读取数据 3. 核心业务处理逻辑  4. 数据输出
-        handle(env, tEnv, parameters);
+        handle(env, parameters);
+
+        // 5. execute触发执行
+        env.execute(jobName);
 
     }
 
-    public abstract void handle(StreamExecutionEnvironment env, StreamTableEnvironment tEnv, ParameterTool parameters) throws IOException;
+    /**
+     * 核心处理：Source->Transformation(s)数据转换->Sink
+     *
+     * @param env 流执行环境
+     * @param parameters 任务全局参数
+     */
+    public abstract void handle(StreamExecutionEnvironment env, ParameterTool parameters);
+
+    public void printLog () {
+        log.info(">>>>>>>>>> 流环境 <<<<<<<<<<");
+    }
+
 }

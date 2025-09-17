@@ -1,6 +1,6 @@
 package com.sands.realtime.example.app;
 
-import com.sands.realtime.common.base.BaseAPP;
+import com.sands.realtime.common.base.BaseStreamAPP;
 import com.sands.realtime.common.constant.TopicConstant;
 import com.sands.realtime.common.utils.FlinkSinkUtil;
 import com.sands.realtime.common.utils.FlinkSourceUtil;
@@ -17,16 +17,12 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
 
 /**
- * Flink 实时计算 WordCount 案例
+ * 采用继承方式执行的 Flink 实时计算 WordCount 案例
  *
  * @author Jagger
  * @since 2025/8/28 14:13
-$FLINK_HOME/bin/flink run \
--m 192.168.138.15:8081 \
--c com.sands.realtime.example.app.WordCountAPP \
-$FLINK_HOME/usrlib/realtime-example/target/realtime-example-1.0-SNAPSHOT.jar
  */
-public class WordCountAPP extends BaseAPP {
+public class WordCountAPP extends BaseStreamAPP {
 
     public static void main(String[] args) throws Exception {
         new WordCountAPP().start(8081, args);
