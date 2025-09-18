@@ -1,4 +1,4 @@
-package com.sands.realtime.ods.sqlserver.converter;
+package com.sands.realtime.ods.converter;
 
 import io.debezium.spi.converter.CustomConverter;
 import io.debezium.spi.converter.RelationalColumn;

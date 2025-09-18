@@ -15,7 +15,8 @@ CREATE TABLE InventoryINVOrders
     _row_kind STRING,
     _ingestion_time TIMESTAMP,
     _process_time   TIMESTAMP,
-    _source_time    TIMESTAMP
+    _source_time    TIMESTAMP,
+    _record_time TIMESTAMP_LTZ(3) METADATA FROM 'timestamp'    -- reads and writes a Kafka record's timestamp
 ) WITH (
       'connector' = 'kafka',
       'topic' = 'ods_orders_topic',

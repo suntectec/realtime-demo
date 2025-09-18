@@ -1,4 +1,4 @@
-package com.sands.realtime.ods.sqlserver.schema;
+package com.sands.realtime.ods.schema;
 
 import com.alibaba.fastjson.JSON;
 import io.debezium.data.Envelope;
@@ -47,8 +47,8 @@ public class SqlserverDeserializationSchema implements DebeziumDeserializationSc
         String tableCatalog = source.getString("db");
         String tableSchema = source.getString("schema");
         String tableName = source.getString("table");
-        Long sourceTsMs = source.getInt64("ts_ms"); // 获取source.ts_ms: 源系统创建事件的时间戳。对应于Debezium记录中的source.ts_ts字段。在数据库中进行更改的时间戳
-        Long tsMs = struct.getInt64("ts_ms"); // 获取ts_ms: 连接器处理事件时的时间戳。对应于Debezium记录中的ts_ms字段。连接器处理事件的JVM系统时钟时间戳
+        Long sourceTsMs = source.getInt64("ts_ms"); // payload.source.ts_ms: 源系统创建事件的时间戳。source_database_update_time 源数据库更新时间戳
+        Long tsMs = struct.getInt64("ts_ms"); // payload.ts_ms: 连接器处理事件时的时间戳。Debezium 连接器处理的JVM系统时间戳
         resultMap.put("table_catalog", tableCatalog);
         resultMap.put("table_schema", tableSchema);
         resultMap.put("table_name", tableName);

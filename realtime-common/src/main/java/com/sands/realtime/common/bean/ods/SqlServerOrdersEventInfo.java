@@ -16,7 +16,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SqlServerOrdersAfterInfo {
+public class SqlServerOrdersEventInfo {
 
     private String id;
     private String order_id;

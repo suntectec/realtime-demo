@@ -1,6 +1,6 @@
-package com.sands.realtime.ods.sqlserver.source;
+package com.sands.realtime.ods.source;
 
-import com.sands.realtime.ods.sqlserver.schema.SqlserverDeserializationSchema;
+import com.sands.realtime.ods.schema.SqlserverDeserializationSchema;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cdc.connectors.base.options.StartupOptions;
 import org.apache.flink.cdc.connectors.sqlserver.source.SqlServerSourceBuilder;
@@ -16,11 +16,6 @@ public class SqlServerOdsSource {
 
     /**
      * 一个 sqlserver 源，使用了自定义的 debezium deserialization schema 和 datetime converter
-     *
-     * @param parameters
-     * @param databaseList
-     * @param tableList
-     * @return
      */
     public static SqlServerIncrementalSource<String> getSqlServerOdsSource(
             ParameterTool parameters, String  databaseList, String tableList, StartupOptions startupOptions) {
@@ -42,7 +37,7 @@ public class SqlServerOdsSource {
     public static Properties getDebeziumProperties() {
         Properties properties = new Properties();
         properties.put("converters", "sqlserverDebeziumConverter");
-        properties.put("sqlserverDebeziumConverter.type", "com.sands.realtime.ods.sqlserver.converter.DataDateTimeDebeziumConverter");
+        properties.put("sqlserverDebeziumConverter.type", "com.sands.realtime.ods.converter.DataDateTimeDebeziumConverter");
         properties.put("sqlserverDebeziumConverter.database.type", "sqlserver");
         // 自定义格式，可选
         properties.put("sqlserverDebeziumConverter.format.date", "yyyy-MM-dd");
