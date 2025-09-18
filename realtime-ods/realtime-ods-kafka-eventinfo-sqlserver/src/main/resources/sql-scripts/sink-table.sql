@@ -15,7 +15,8 @@ CREATE TABLE TestDBOOrders
     _row_kind STRING,
     _ingestion_time TIMESTAMP,
     _process_time   TIMESTAMP,
-    _source_time    TIMESTAMP
+    _source_time    TIMESTAMP,
+    _record_time    TIMESTAMP
 ) WITH (
       'connector' = 'jdbc',
       'url' = 'jdbc:sqlserver://192.168.138.15:14330;database=TestDB',

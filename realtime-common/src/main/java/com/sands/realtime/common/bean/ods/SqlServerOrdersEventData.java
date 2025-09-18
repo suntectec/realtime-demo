@@ -35,6 +35,7 @@ public class SqlServerOrdersEventData {
     @JSONField(name = "table_name")
     private String tableName;
 
-    private SqlServerOrdersAfterInfo after;
+    private SqlServerOrdersEventInfo after;
 
+    private SqlServerOrdersEventInfo before;
 }

@@ -2,13 +2,13 @@ package com.sands.realtime.ods.app;
 
 import com.alibaba.fastjson.JSON;
 import com.sands.realtime.common.base.BaseStreamAPP;
-import com.sands.realtime.common.bean.ods.SqlServerOrdersAfterInfo;
+import com.sands.realtime.common.bean.ods.SqlServerOrdersEventInfo;
 import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
 import com.sands.realtime.common.constant.SqlServerConstant;
 import com.sands.realtime.common.constant.TopicConstant;
 import com.sands.realtime.common.utils.FlinkSinkUtil;
-import com.sands.realtime.ods.sqlserver.function.OrdersProcessFunction;
-import com.sands.realtime.ods.sqlserver.source.SqlServerOdsSource;
+import com.sands.realtime.ods.function.OrdersProcessFunction;
+import com.sands.realtime.ods.source.SqlServerOdsSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -59,11 +59,11 @@ public class OdsSqlServerToKafkaAPP extends BaseStreamAPP {
         source.print(">source>");
 
         // Transformation
-        SingleOutputStreamOperator<SqlServerOrdersAfterInfo> infoDS = source
+        SingleOutputStreamOperator<SqlServerOrdersEventInfo> infoDS = source
                 .map(line -> JSON.parseObject(line, SqlServerOrdersEventData.class))
                 .returns(Types.POJO(SqlServerOrdersEventData.class))
                 .process(new OrdersProcessFunction())
-                .returns(Types.POJO(SqlServerOrdersAfterInfo.class));
+                .returns(Types.POJO(SqlServerOrdersEventInfo.class));
 
         SingleOutputStreamOperator<String> sink = infoDS.map(JSON::toJSONString);
 
