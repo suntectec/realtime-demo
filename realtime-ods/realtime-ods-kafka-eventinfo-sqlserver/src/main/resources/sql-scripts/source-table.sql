@@ -1,4 +1,4 @@
-CREATE TABLE InventoryINVOrders
+CREATE TABLE OdsOrdersTopic
 (
     id              BIGINT,
     order_id        STRING,

@@ -5,18 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.sands</groupId>
-        <artifactId>realtime-parent</artifactId>
+        <artifactId>realtime-ods</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>realtime-ods</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>realtime-ods-kafka-eventinfo-paimon</module>
-        <module>realtime-ods-kafka-eventinfo-sqlserver</module>
-        <module>realtime-ods-sqlserver-eventdata-kafka</module>
-        <module>realtime-ods-sqlserver-eventdata-paimon</module>
-    </modules>
+    <artifactId>realtime-ods-sqlserver-eventdata-paimon</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -25,10 +18,8 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>com.sands</groupId>
-            <artifactId>realtime-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>provided</scope>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-files</artifactId>
         </dependency>
     </dependencies>
 
