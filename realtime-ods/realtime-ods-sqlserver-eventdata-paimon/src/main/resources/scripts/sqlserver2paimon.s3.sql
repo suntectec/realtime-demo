@@ -53,6 +53,8 @@ CREATE TABLE IF NOT EXISTS orders (
     PRIMARY KEY (id) NOT ENFORCED
     );
 
-SET 'execution.checkpointing.interval' = '10 s';
+-- required set before submit insert job, otherwise data not observe
+-- execution.checkpointing.interval: default - none, The base interval setting. To enable checkpointing, you need to set this value larger than 0.
+-- SET 'execution.checkpointing.interval' = '10 s';
 
 INSERT INTO orders SELECT * FROM sqlserver_source;

@@ -1,6 +1,5 @@
-package com.sands.realtime.ods.app;
+package com.sands.realtime.common.utils;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -12,15 +11,16 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
- * 优化后读取 sql-scripts 文件
+ * flink run 形式指定 sql script:
+ * 当作业的SQL语句修改频繁时，可使用Flink Jar的方式提交Flink SQL语句，以减少用户工作量。
  *
  * @author Jagger
- * @since 2025/8/13 10:10
+ * @since 2025/9/19 16:45
  */
-@Slf4j
-public class OdsSqlserverToPaimonS3APP2 {
+public class FlinkSQLExecutor {
 
     public static void main(String[] args) {
+
         System.out.println("--------------------  begin init ----------------------");
         final String sqlPath = ParameterTool.fromArgs(args).get("sql", "scripts/sqlserver2paimon.s3.sql");
         final StreamExecutionEnvironment streamEnv = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -36,9 +36,13 @@ public class OdsSqlserverToPaimonS3APP2 {
             System.err.println("Read File - IOException");
             throw new RuntimeException(e);
         }
-        String[] sqlArr = sqlStr.split(";");
+        String[] sqlArr = sqlStr.split(";"); // 注意按 ; 分割 sql 执行，最好不要出现 -- 注释行
         for (String sql : sqlArr) {
             sql = sql.trim();
+            // 跳过空行和注释行
+            if (sql.isEmpty() || sql.startsWith("--")) {
+                continue;
+            }
             if (sql.toLowerCase(Locale.ROOT).startsWith("create")) {
                 System.out.println("----------------------------------------------\nexecuteSql=\n" + sql);
                 tableEnv.executeSql(sql);
@@ -52,6 +56,7 @@ public class OdsSqlserverToPaimonS3APP2 {
         }
         System.out.println("---------------------- begin exec sql --------------------------");
         statementSet.execute();
+
     }
 
 }

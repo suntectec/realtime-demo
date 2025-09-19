@@ -21,7 +21,7 @@ import java.util.List;
 public class OdsSqlserverToPaimonS3APP {
 
     public static void main(String[] args) throws IOException {
-        String sqlFilePath = "sql-scripts/sqlserver2paimon.s3.sql";
+        String sqlFilePath = "scripts/sqlserver2paimon.s3.sql";
 
         try {
             // 读取并解析SQL文件
