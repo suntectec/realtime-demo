@@ -30,10 +30,10 @@ public class SqlServerUtil {
                 .build();
     }
 
-    public static DataStreamSource<String> createSqlServerCdcDataStream(StreamExecutionEnvironment env,
+    public static DataStreamSource<String> createSqlServerCdcDataStream(StreamExecutionEnvironment streamEnv,
                                                                         ParameterTool parameters, String database, String table, StartupOptions startupOptions) throws Exception {
         SqlServerIncrementalSource<String> sqlServerSource = getSqlServerSource(parameters, database, table, startupOptions);
-        return env.fromSource(sqlServerSource, WatermarkStrategy.noWatermarks(), "Sqlserver Source");
+        return streamEnv.fromSource(sqlServerSource, WatermarkStrategy.noWatermarks(), "Sqlserver Source");
     }
 
 }

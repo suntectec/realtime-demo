@@ -1,6 +1,6 @@
 package com.sands.realtime.ods.app;
 
-import com.sands.realtime.common.base.BaseTableAPP;
+import com.sands.realtime.common.base.BaseTableEnvAPP;
 import com.sands.realtime.common.utils.ResourcesFileReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -18,22 +18,22 @@ import java.util.regex.Pattern;
  * @since 2025/9/12 15:28
  */
 @Slf4j
-public class OdsKafkaToSqlServerAPP extends BaseTableAPP {
+public class OdsKafkaToSqlServerAPP extends BaseTableEnvAPP {
 
     public static void main(String[] args) throws Exception {
         new OdsKafkaToSqlServerAPP().start(8081, args);
     }
 
     @Override
-    public void handle(StreamExecutionEnvironment env, StreamTableEnvironment tEnv, ParameterTool parameters) throws IOException {
+    public void handle(StreamExecutionEnvironment streamEnv, StreamTableEnvironment tableEnv, ParameterTool parameters) throws IOException {
 
         ResourcesFileReader reader = new ResourcesFileReader();
         String sourceTable = reader.read("sql-scripts/source-table.sql");
 
         String sinkTable = reader.read("sql-scripts/sink-table.sql");
 
-        tEnv.executeSql(sourceTable);
-        tEnv.executeSql(sinkTable);
+        tableEnv.executeSql(sourceTable);
+        tableEnv.executeSql(sinkTable);
 
         // 使用正则表达式匹配表名
         Pattern pattern = Pattern.compile("CREATE\\s+TABLE\\s+(\\w+)\\s*\\(");
@@ -48,10 +48,10 @@ public class OdsKafkaToSqlServerAPP extends BaseTableAPP {
 
             TableResult tableResult = null;
 
-            if (env instanceof LocalStreamEnvironment) { // 本地只做源表查询
-                tEnv.sqlQuery(String.format("SELECT * FROM %s", sourceTableName)).execute().print();
+            if (streamEnv instanceof LocalStreamEnvironment) { // 本地只做源表查询
+                tableEnv.sqlQuery(String.format("SELECT * FROM %s", sourceTableName)).execute().print();
             } else { // 集群运行环境
-                tableResult = tEnv.executeSql(
+                tableResult = tableEnv.executeSql(
                         String.format("INSERT INTO %s SELECT * FROM %s", sinkTableName, sourceTableName));
             }
 

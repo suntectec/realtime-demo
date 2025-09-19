@@ -17,10 +17,10 @@ public abstract class ParametersUtil {
     /**
      * Program arguments: --name zhangshan --age 20 --warehouse xxx
      *
-     * @param env
+     * @param streamEnv 流执行环境
      * @param args Higher Priority args Input, Secondary Priority properties File
      */
-    public static ParameterTool setGlobalJobParameters(StreamExecutionEnvironment env, String[] args) throws IOException {
+    public static ParameterTool setGlobalJobParameters(StreamExecutionEnvironment streamEnv, String[] args) throws IOException {
 
         // 1. 全局变量获取 application.properties
         ParameterTool parameter1 = PropertiesUtil.getPropertiesParameters();
@@ -31,7 +31,7 @@ public abstract class ParametersUtil {
         // 合并（parameters2 的参数会覆盖 parameters1 的同名参数）
         ParameterTool mergedParam = parameter1.mergeWith(parameter2);
 
-        env.getConfig().setGlobalJobParameters(mergedParam);
+        streamEnv.getConfig().setGlobalJobParameters(mergedParam);
 
         return mergedParam;
     }

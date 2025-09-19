@@ -26,11 +26,11 @@ public class SocketWordCountWithWebUI {
         // 1.准备环境
         Configuration conf = new Configuration();
         conf.set(RestOptions.BIND_PORT, "8081");
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
+        StreamExecutionEnvironment streamEnv = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
 
         // 2.读取数据
         // Source 接收一个socket文本流
-        DataStreamSource<String> source = env.socketTextStream("localhost", 9999);
+        DataStreamSource<String> source = streamEnv.socketTextStream("localhost", 9999);
 
         // 3.进行数据转换处理
         // Transformation(s) 对数据进行处理操作
@@ -50,7 +50,7 @@ public class SocketWordCountWithWebUI {
         sink.print(">sink>").setParallelism(1);
 
         // 5.execute触发执行
-        env.execute();
+        streamEnv.execute();
 
     }
 }

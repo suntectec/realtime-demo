@@ -50,12 +50,12 @@ public class CdcSqlserver2PaimonS3Job {
                         .startupOptions(StartupOptions.initial())
                         .build();
 
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        StreamExecutionEnvironment streamEnv = StreamExecutionEnvironment.getExecutionEnvironment();
         // enable checkpoint for CONTINUOUS_UNBOUNDED source, set checkpoint interval
-        env.enableCheckpointing(3000);
+        streamEnv.enableCheckpointing(3000);
 
         // set the source parallelism to 2
-        DataStreamSource<String> source = env.fromSource(
+        DataStreamSource<String> source = streamEnv.fromSource(
                 sqlServerSource,
                 WatermarkStrategy.noWatermarks(),
                 "SqlServerIncrementalSource");
@@ -111,7 +111,7 @@ public class CdcSqlserver2PaimonS3Job {
                 .catalogLoader(catalogLoader)
                 .build();
 
-        env.execute("Print SqlServer Snapshot + Change Stream");
+        streamEnv.execute("Print SqlServer Snapshot + Change Stream");
     }
 
     public static void main(String[] args) throws Exception {

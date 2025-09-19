@@ -1,7 +1,7 @@
 package com.sands.realtime.ods.app;
 
 import com.alibaba.fastjson.JSON;
-import com.sands.realtime.common.base.BaseStreamAPP;
+import com.sands.realtime.common.base.BaseStreamEnvAPP;
 import com.sands.realtime.common.bean.ods.SqlServerOrdersEventInfo;
 import com.sands.realtime.common.bean.ods.SqlServerOrdersEventData;
 import com.sands.realtime.common.constant.SqlServerConstant;
@@ -27,34 +27,34 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
  * @since 2025/9/2 9:22
  */
 @Slf4j
-public class OdsSqlServerToKafkaAPP extends BaseStreamAPP {
+public class OdsSqlServerToKafkaAPP extends BaseStreamEnvAPP {
 
     public static void main(String[] args) throws Exception {
         new OdsSqlServerToKafkaAPP().start(8081, args);
     }
 
     @Override
-    public void handle(StreamExecutionEnvironment env, ParameterTool parameters) {
+    public void handle(StreamExecutionEnvironment streamEnv, ParameterTool parameters) {
 
         // Environment
         // 设置全局并行度
-        env.setParallelism(1);
+        streamEnv.setParallelism(1);
         // 设置时间语义为ProcessingTime
-        env.getConfig().setAutoWatermarkInterval(0);
+        streamEnv.getConfig().setAutoWatermarkInterval(0);
         // 每隔60s启动一个检查点
-        env.enableCheckpointing(60000, CheckpointingMode.EXACTLY_ONCE);
+        streamEnv.enableCheckpointing(60000, CheckpointingMode.EXACTLY_ONCE);
         // checkpoint最小间隔
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(1000);
+        streamEnv.getCheckpointConfig().setMinPauseBetweenCheckpoints(1000);
         // checkpoint超时时间
-        env.getCheckpointConfig().setCheckpointTimeout(60000);
+        streamEnv.getCheckpointConfig().setCheckpointTimeout(60000);
         // 同一时间只允许一个checkpoint
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
+        streamEnv.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
         // Flink处理程序被cancel后，会保留Checkpoint数据
-        env.getCheckpointConfig().getExternalizedCheckpointRetention();
+        streamEnv.getCheckpointConfig().getExternalizedCheckpointRetention();
 
         // Source
         // 使用自定义 SqlServer Line Debezium Schema 和 时间日期 Converter
-        DataStreamSource<String> source = env.fromSource(SqlServerOdsSource.getSqlServerOdsSource(parameters, SqlServerConstant.SQLSERVER_SOURCE_DB, SqlServerConstant.SQLSERVER_SOURCE_TB, StartupOptions.initial()),
+        DataStreamSource<String> source = streamEnv.fromSource(SqlServerOdsSource.getSqlServerOdsSource(parameters, SqlServerConstant.SQLSERVER_SOURCE_DB, SqlServerConstant.SQLSERVER_SOURCE_TB, StartupOptions.initial()),
                 WatermarkStrategy.noWatermarks(), "SqlServer Source");
         source.print(">source>");
 
@@ -68,13 +68,13 @@ public class OdsSqlServerToKafkaAPP extends BaseStreamAPP {
         SingleOutputStreamOperator<String> sink = infoDS.map(JSON::toJSONString);
 
         // Sink
-        if (env instanceof LocalStreamEnvironment) { // 在本地测试运行的逻辑
+        if (streamEnv instanceof LocalStreamEnvironment) { // 在本地测试运行的逻辑
             sink.print(">sink>");
         } else { // 写入kafka
             sink.sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.ODS_ORDERS_TOPIC)).name("sink_ods_orders_topic");
         }
 
-        env.disableOperatorChaining();
+        streamEnv.disableOperatorChaining();
 
     }
 }

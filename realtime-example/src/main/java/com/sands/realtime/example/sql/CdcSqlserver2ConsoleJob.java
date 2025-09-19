@@ -16,13 +16,13 @@ public class CdcSqlserver2ConsoleJob {
     private static final Logger logger = LoggerFactory.getLogger(CdcSqlserver2ConsoleJob.class);
 
     public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setRuntimeMode(RuntimeExecutionMode.STREAMING);
-        env.setParallelism(1);
+        StreamExecutionEnvironment streamEnv = StreamExecutionEnvironment.getExecutionEnvironment();
+        streamEnv.setRuntimeMode(RuntimeExecutionMode.STREAMING);
+        streamEnv.setParallelism(1);
 
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(streamEnv);
 
-        tEnv.executeSql(
+        tableEnv.executeSql(
                 "CREATE TABLE Orders (\n" +
                         "    id BIGINT,\n" +
                         "    order_id VARCHAR(36),\n" +
@@ -48,7 +48,7 @@ public class CdcSqlserver2ConsoleJob {
                         ");"
         );
 
-        tEnv.sqlQuery("SELECT * FROM Orders")
+        tableEnv.sqlQuery("SELECT * FROM Orders")
                 .execute()
                 .print();
     }

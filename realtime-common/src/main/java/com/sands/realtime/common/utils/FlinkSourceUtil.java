@@ -57,9 +57,9 @@ public class FlinkSourceUtil {
         return kafkaSource;
     }
 
-    public static DataStreamSource<String> createKafkaDataStream(StreamExecutionEnvironment env,String kafkaServers,
+    public static DataStreamSource<String> createKafkaDataStream(StreamExecutionEnvironment streamEnv,String kafkaServers,
                                                                 String groupId, String topics, OffsetsInitializer offsetsInitializer) throws Exception {
         KafkaSource<String> kafkaSource = getKafkaSource(kafkaServers, groupId, topics, offsetsInitializer);
-        return env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
+        return streamEnv.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
     }
 }

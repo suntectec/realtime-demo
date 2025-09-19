@@ -16,12 +16,12 @@ public class OdsSqlserverToPaimonS3APP1 {
 
     public static void main(String[] args) {
 
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.enableCheckpointing(10000);
-        env.setParallelism(1);
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env);
+        StreamExecutionEnvironment streamEnv = StreamExecutionEnvironment.getExecutionEnvironment();
+        streamEnv.enableCheckpointing(10000);
+        streamEnv.setParallelism(1);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(streamEnv);
 
-        tEnv.executeSql("CREATE CATALOG paimon_catalog WITH (\n" +
+        tableEnv.executeSql("CREATE CATALOG paimon_catalog WITH (\n" +
                 "    'type'='paimon',\n" +
                 "    'warehouse'='s3://lakehouse/paimon/',\n" +
                 "    's3.endpoint'='http://192.168.138.15:9000',\n" +
@@ -30,13 +30,13 @@ public class OdsSqlserverToPaimonS3APP1 {
                 "    's3.path.style.access'='true'\n" +
                 ");");
 
-        tEnv.executeSql("USE CATALOG paimon_catalog;");
+        tableEnv.executeSql("USE CATALOG paimon_catalog;");
 
-        tEnv.executeSql("CREATE DATABASE IF NOT EXISTS inventory;");
+        tableEnv.executeSql("CREATE DATABASE IF NOT EXISTS inventory;");
 
-        tEnv.executeSql("USE inventory;");
+        tableEnv.executeSql("USE inventory;");
 
-        tEnv.executeSql("CREATE TEMPORARY TABLE InventoryINVOrders (\n" +
+        tableEnv.executeSql("CREATE TEMPORARY TABLE InventoryINVOrders (\n" +
                 "    id BIGINT,\n" +
                 "    order_id VARCHAR(36),\n" +
                 "    supplier_id INT,\n" +
@@ -60,7 +60,7 @@ public class OdsSqlserverToPaimonS3APP1 {
                 "    'table-name' = 'INV.orders'\n" +
                 ");");
 
-        tEnv.executeSql("CREATE TABLE IF NOT EXISTS Orders (\n" +
+        tableEnv.executeSql("CREATE TABLE IF NOT EXISTS Orders (\n" +
                 "    id BIGINT,\n" +
                 "    order_id VARCHAR(36),\n" +
                 "    supplier_id INT,\n" +
@@ -76,10 +76,10 @@ public class OdsSqlserverToPaimonS3APP1 {
                 "    PRIMARY KEY (id) NOT ENFORCED\n" +
                 ");");
 
-        TableResult tableResult = tEnv.executeSql("INSERT INTO Orders SELECT * FROM InventoryINVOrders;");
+        TableResult tableResult = tableEnv.executeSql("INSERT INTO Orders SELECT * FROM InventoryINVOrders;");
         if (tableResult.getJobClient().isPresent()) log.info("----------"+tableResult.getJobClient().get().getJobStatus());
 
-        // tEnv.sqlQuery("SELECT * FROM Orders;").execute().print();
+        // tableEnv.sqlQuery("SELECT * FROM Orders;").execute().print();
 
     }
 

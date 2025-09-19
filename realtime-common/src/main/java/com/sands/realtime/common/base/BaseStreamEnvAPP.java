@@ -27,7 +27,7 @@ import static org.apache.flink.configuration.ExternalizedCheckpointRetention.RET
 @Setter
 @Getter
 @Slf4j
-public abstract class BaseStreamAPP implements IBaseAPP {
+public abstract class BaseStreamEnvAPP implements IBaseAPP {
 
     /**
      *  为非继承执行，调用方式，设置的作业名 JobName
@@ -44,38 +44,38 @@ public abstract class BaseStreamAPP implements IBaseAPP {
         // 1.2 获取流处理环境，并指定本地测试时启动 WebUI 所绑定的端口
         Configuration conf = new Configuration();
         conf.set(RestOptions.BIND_PORT, String.valueOf(port));
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+        StreamExecutionEnvironment streamEnv = StreamExecutionEnvironment.getExecutionEnvironment(conf);
 
         // 1.2.1 本地运行环境添加 8081 WebUI
-        if (env instanceof LocalStreamEnvironment) {
-            env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
+        if (streamEnv instanceof LocalStreamEnvironment) {
+            streamEnv = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
         }
 
         // 1.3 将ParameterTool的参数设置成全局的参数
         // ParameterTool parameter = ParameterTool.fromArgs(args);
-        // env.getConfig().setGlobalJobParameters(parameter);
+        // streamEnv.getConfig().setGlobalJobParameters(parameter);
         // 1.3.1 升级 parameter 采用优先级：args, properties 的方式获取
-        ParameterTool parameters = ParametersUtil.setGlobalJobParameters(env, args);
+        ParameterTool parameters = ParametersUtil.setGlobalJobParameters(streamEnv, args);
         // 1.4 检查点相关配置
         // 1.4.1 开启 checkpoint
-        env.enableCheckpointing(10000);
+        streamEnv.enableCheckpointing(10000);
         // 1.4.2 checkpoint 模式: 精准一次
-        env.getCheckpointConfig().setCheckpointingConsistencyMode(CheckpointingMode.EXACTLY_ONCE);
+        streamEnv.getCheckpointConfig().setCheckpointingConsistencyMode(CheckpointingMode.EXACTLY_ONCE);
         // 1.4.3 checkpoint 之间的最小间隔
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(5000);
+        streamEnv.getCheckpointConfig().setMinPauseBetweenCheckpoints(5000);
         // 1.4.4 checkpoint 的超时时间
-        env.getCheckpointConfig().setCheckpointTimeout(60000);
+        streamEnv.getCheckpointConfig().setCheckpointTimeout(60000);
         // 1.4.5 checkpoint 失败尝试次数
-        env.getCheckpointConfig().setTolerableCheckpointFailureNumber(2);
+        streamEnv.getCheckpointConfig().setTolerableCheckpointFailureNumber(2);
         // 1.4.6 checkpoint 并发数
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
+        streamEnv.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
         // 1.4.7 job 取消时 checkpoint 保留策略
-        env.getCheckpointConfig().setExternalizedCheckpointRetention(RETAIN_ON_CANCELLATION);
+        streamEnv.getCheckpointConfig().setExternalizedCheckpointRetention(RETAIN_ON_CANCELLATION);
         // 1.4.8 允许非对齐 checkpoint
-        env.getCheckpointConfig().enableUnalignedCheckpoints();
+        streamEnv.getCheckpointConfig().enableUnalignedCheckpoints();
 
         // 1.4.9 checkpoint 存储
-        if (env instanceof LocalStreamEnvironment) {  // 在本地运行的逻辑
+        if (streamEnv instanceof LocalStreamEnvironment) {  // 在本地运行的逻辑
             // 设置状态后端
             Configuration config = new Configuration();
             // 使用 HashMapStateBackend 作为状态后端
@@ -88,7 +88,7 @@ public abstract class BaseStreamAPP implements IBaseAPP {
 
             FileSystem.initialize(config, null);
 
-            env.configure(config);
+            streamEnv.configure(config);
 
             log.info("Flink 提交作业模式：--本地");
             log.info("Flink 提交作业环境：--" + parameters.get("env"));
@@ -111,26 +111,26 @@ public abstract class BaseStreamAPP implements IBaseAPP {
 
             FileSystem.initialize(config, null);
 
-            env.configure(config);
+            streamEnv.configure(config);
 
             log.info("flink提交作业模式：--集群" + parameters.get("env"));
         }
 
         // 2. 读取数据 3. 核心业务处理逻辑  4. 数据输出
-        handle(env, parameters);
+        handle(streamEnv, parameters);
 
         // 5. execute触发执行
-        env.execute(jobName);
+        streamEnv.execute(jobName);
 
     }
 
     /**
      * 核心处理：Source->Transformation(s)数据转换->Sink
      *
-     * @param env 流执行环境
+     * @param streamEnv 流执行环境
      * @param parameters 任务全局参数
      */
-    public abstract void handle(StreamExecutionEnvironment env, ParameterTool parameters);
+    public abstract void handle(StreamExecutionEnvironment streamEnv, ParameterTool parameters);
 
     public void printLog () {
         log.info(">>>>>>>>>> 流环境 <<<<<<<<<<");

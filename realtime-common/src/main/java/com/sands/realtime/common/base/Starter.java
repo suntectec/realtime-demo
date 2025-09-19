@@ -19,11 +19,11 @@ public class Starter {
     }
 
     public void start(int port, String[] args) throws Exception {
-        if (baseAPP instanceof BaseStreamAPP) {
-            BaseStreamAPP baseStreamAPP = (BaseStreamAPP) baseAPP;
+        if (baseAPP instanceof BaseStreamEnvAPP) {
+            BaseStreamEnvAPP baseStreamAPP = (BaseStreamEnvAPP) baseAPP;
             baseStreamAPP.printLog();
-        } else if (baseAPP instanceof BaseTableAPP) {
-            BaseTableAPP baseTableAPP = (BaseTableAPP) baseAPP;
+        } else if (baseAPP instanceof BaseTableEnvAPP) {
+            BaseTableEnvAPP baseTableAPP = (BaseTableEnvAPP) baseAPP;
             baseTableAPP.printLog();
         }
 

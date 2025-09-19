@@ -100,15 +100,15 @@ public class OdsSqlserverToPaimonS3APP {
      */
     private static void executeSQLStatements(List<String> sqlStatements) throws SQLException{
 
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.enableCheckpointing(10000);
-        env.setParallelism(1);
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env);
+        StreamExecutionEnvironment streamEnv = StreamExecutionEnvironment.getExecutionEnvironment();
+        streamEnv.enableCheckpointing(10000);
+        streamEnv.setParallelism(1);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(streamEnv);
 
         for (String sql : sqlStatements) {
             if (!sql.isEmpty()) {
                 log.info("执行SQL: " + sql);
-                TableResult tableResult = tEnv.executeSql(sql);
+                TableResult tableResult = tableEnv.executeSql(sql);
                 if (tableResult.getJobClient().isPresent()) log.info("提交作业状态：" + tableResult.getJobClient().get().getJobStatus());
             }
         }

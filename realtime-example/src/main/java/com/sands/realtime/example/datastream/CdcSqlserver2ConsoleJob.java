@@ -19,7 +19,7 @@ public class CdcSqlserver2ConsoleJob {
     private final static Logger logger = LoggerFactory.getLogger(CdcSqlserver2ConsoleJob.class);
 
     public static void run(String sqlserver_host, String sqlserver_port, String sqlserver_username, String sqlserver_password) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        StreamExecutionEnvironment streamEnv = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // CDC SqlServer Source
         SqlServerIncrementalSource<String> sqlServerIncrementalSource = new SqlServerSourceBuilder<String>()
@@ -33,13 +33,13 @@ public class CdcSqlserver2ConsoleJob {
                 .startupOptions(StartupOptions.initial())
                 .build();
 
-        DataStreamSource<String> source = env
+        DataStreamSource<String> source = streamEnv
                 .fromSource(sqlServerIncrementalSource, WatermarkStrategy.noWatermarks(), "SqlServer Source")
                 .setParallelism(1);
 
         source.print(">source>").setParallelism(1);
 
-        env.execute();
+        streamEnv.execute();
     }
 
     public static void main(String[] args) throws Exception {

@@ -1,6 +1,6 @@
 package com.sands.realtime.example.app;
 
-import com.sands.realtime.common.base.BaseStreamAPP;
+import com.sands.realtime.common.base.BaseStreamEnvAPP;
 import com.sands.realtime.common.constant.TopicConstant;
 import com.sands.realtime.common.utils.FlinkSinkUtil;
 import com.sands.realtime.common.utils.FlinkSourceUtil;
@@ -22,19 +22,19 @@ import org.apache.flink.util.Collector;
  * @author Jagger
  * @since 2025/8/28 14:13
  */
-public class WordCountAPP extends BaseStreamAPP {
+public class WordCountAPP extends BaseStreamEnvAPP {
 
     public static void main(String[] args) throws Exception {
         new WordCountAPP().start(8081, args);
     }
 
     @Override
-    public void handle(StreamExecutionEnvironment env, ParameterTool parameters) {
-        env.setParallelism(1);
+    public void handle(StreamExecutionEnvironment streamEnv, ParameterTool parameters) {
+        streamEnv.setParallelism(1);
 
         // Source
         KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource(parameters.get("kafka.broker"), "test_group", "test_topic", OffsetsInitializer.earliest());
-        DataStreamSource<String> source = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
+        DataStreamSource<String> source = streamEnv.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
         // Transformation
         SingleOutputStreamOperator<Tuple2<String, Integer>> wordAndOneDS = source
@@ -49,7 +49,7 @@ public class WordCountAPP extends BaseStreamAPP {
         SingleOutputStreamOperator<Tuple2<String, Integer>> sink = wordAndOneDS.keyBy(v -> v.f0).sum(1).name("wordCount");
 
         // Sink
-        if (env instanceof LocalStreamEnvironment) {
+        if (streamEnv instanceof LocalStreamEnvironment) {
             sink.print(">sink>");
         } else {
             sink
@@ -57,7 +57,7 @@ public class WordCountAPP extends BaseStreamAPP {
                     .sinkTo(FlinkSinkUtil.getKafkaSink(parameters, TopicConstant.ODS_SOCKET_TOPIC)).name("sink_ods_socket_topic");
         }
 
-        env.disableOperatorChaining();
+        streamEnv.disableOperatorChaining();
     }
 
 }

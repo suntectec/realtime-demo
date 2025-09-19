@@ -15,12 +15,12 @@ public class CdcSqlserver2PaimonS3Job {
 
     public static void run(String sqlserver_host, String sqlserver_port, String sqlserver_username, String sqlserver_password,
                            String s3_endpoint, String s3_access_key, String s3_secret_key) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.enableCheckpointing(10000);
-        env.setParallelism(1);
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env);
+        StreamExecutionEnvironment streamEnv = StreamExecutionEnvironment.getExecutionEnvironment();
+        streamEnv.enableCheckpointing(10000);
+        streamEnv.setParallelism(1);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(streamEnv);
 
-        tEnv.executeSql("CREATE CATALOG paimon_catalog WITH (\n" +
+        tableEnv.executeSql("CREATE CATALOG paimon_catalog WITH (\n" +
                 "    'type'='paimon',\n" +
                 "    'warehouse'='s3://lakehouse/paimon/',\n" +
                 "    's3.endpoint'='http://192.168.138.15:9000',\n" +
@@ -29,13 +29,13 @@ public class CdcSqlserver2PaimonS3Job {
                 "    's3.path.style.access'='true'\n" +
                 ");");
 
-        tEnv.executeSql("USE CATALOG paimon_catalog;");
+        tableEnv.executeSql("USE CATALOG paimon_catalog;");
 
-        tEnv.executeSql("CREATE DATABASE IF NOT EXISTS inventory;");
+        tableEnv.executeSql("CREATE DATABASE IF NOT EXISTS inventory;");
 
-        tEnv.executeSql("USE inventory;");
+        tableEnv.executeSql("USE inventory;");
 
-        tEnv.executeSql("CREATE TEMPORARY TABLE SourceTable (\n" +
+        tableEnv.executeSql("CREATE TEMPORARY TABLE SourceTable (\n" +
                 "    id BIGINT,\n" +
                 "    order_id VARCHAR(36),\n" +
                 "    supplier_id INT,\n" +
@@ -59,7 +59,7 @@ public class CdcSqlserver2PaimonS3Job {
                 "    'table-name' = 'INV.orders'\n" +
                 ");");
 
-        tEnv.executeSql("CREATE TABLE IF NOT EXISTS SinkTable (\n" +
+        tableEnv.executeSql("CREATE TABLE IF NOT EXISTS SinkTable (\n" +
                 "    id BIGINT,\n" +
                 "    order_id VARCHAR(36),\n" +
                 "    supplier_id INT,\n" +
@@ -75,12 +75,12 @@ public class CdcSqlserver2PaimonS3Job {
                 "    PRIMARY KEY (id) NOT ENFORCED\n" +
                 ");");
 
-        // TableResult tableResult = tEnv.executeSql("INSERT INTO SinkTable SELECT * FROM SourceTable;");
+        // TableResult tableResult = tableEnv.executeSql("INSERT INTO SinkTable SELECT * FROM SourceTable;");
         // if (tableResult.getJobClient().isPresent()) System.out.println(tableResult.getJobClient().get().getJobStatus());
 
-        tEnv.executeSql("INSERT INTO SinkTable SELECT * FROM SourceTable;");
+        tableEnv.executeSql("INSERT INTO SinkTable SELECT * FROM SourceTable;");
 
-        tEnv.executeSql("SELECT * FROM SinkTable;").print();
+        tableEnv.executeSql("SELECT * FROM SinkTable;").print();
     }
 
     public static void main(String[] args) throws Exception {
