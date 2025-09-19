@@ -21,7 +21,7 @@ import static org.apache.flink.configuration.ExternalizedCheckpointRetention.RET
 
 /**
  * TableBaseAPP 设计初衷：
- *  StreamTableEnvironment 表策略
+ *  StreamTableEnvironment 流表环境策略
  *  因为 flink 编程的都是 source - Transformation - sink 编程模式，所有使用抽象类进行封装
  *
  * @author Jagger

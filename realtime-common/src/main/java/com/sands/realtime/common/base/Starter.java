@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Starter 的设计初衷：
- *  启动 Flink 流策略或者表策略执行环境
+ *  启动 Flink 流策略或者流表策略执行环境
  *  使用方法可以是 extend BaseAPP 继承，或者 Starter 调用（无主类名）
  *
  * @author Jagger

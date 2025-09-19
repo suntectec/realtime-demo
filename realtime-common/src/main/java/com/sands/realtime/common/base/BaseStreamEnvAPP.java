@@ -18,7 +18,7 @@ import static org.apache.flink.configuration.ExternalizedCheckpointRetention.RET
 
 /**
  * StreamBaseAPP 设计初衷：
- *  StreamExecutionEnvironment 流策略
+ *  StreamExecutionEnvironment 流执行环境策略
  *  因为 flink 编程的都是 source - Transformation - sink 编程模式，所有使用抽象类进行封装
  *
  * @author Jagger

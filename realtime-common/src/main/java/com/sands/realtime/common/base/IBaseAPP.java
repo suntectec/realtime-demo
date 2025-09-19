@@ -2,7 +2,7 @@ package com.sands.realtime.common.base;
 
 /**
  * IBaseApp 的设计初衷：
- *  Flink 实施策略接口
+ *  Flink 执行环境实施策略接口
  *
  * @author Jagger
  * @since 2025/9/17 9:17
