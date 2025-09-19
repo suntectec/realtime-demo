@@ -6,7 +6,7 @@ import org.apache.flink.table.api.TableResult;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 /**
- *
+ * todo 打包运行存在 issue - ClassNotFoundException: org.apache.hadoop.conf.Configuration
  *
  * @author Jagger
  * @since 2025/8/13 10:10

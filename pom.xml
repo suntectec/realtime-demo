@@ -240,7 +240,8 @@
                                     <!--<exclude>com.squareup.okhttp:okhttp</exclude>-->
 
                                     <exclude>com.google.code.findbugs:jsr305</exclude>
-                                    <!--flink使用集群中flink/plugins/s3-fs-hadoop/的jar-->
+                                    <!--flink流执行环境仅需要使用集群中flink/plugins/s3-fs-hadoop/flink-s3-fs-hadoop.jar-->
+                                    <!--flink流表环境需要使用集群中flink/lib/flink-s3-fs-hadoop.jar和flink-shaded-hadoop-3-uber-->
                                     <exclude>org.apache.flink:flink-shaded-hadoop-3-uber</exclude>
                                     <exclude>org.apache.flink:flink-s3-fs-hadoop</exclude>
                                 </excludes>

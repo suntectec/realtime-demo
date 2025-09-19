@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 优化后读取 sql-scripts 文件
+ * 读取 sql-scripts 文件，行读 sql script，使用 换行符 作为 sql 分隔符，处理注释更准确
+ * todo 打包运行存在 issue - ClassNotFoundException: org.apache.hadoop.conf.Configuration
  *
  * @author Jagger
  * @since 2025/8/13 10:10
@@ -20,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class OdsSqlserverToPaimonS3APP {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String sqlFilePath = "scripts/sqlserver2paimon.s3.sql";
 
         try {
